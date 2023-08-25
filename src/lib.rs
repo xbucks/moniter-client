@@ -12,6 +12,7 @@ mod trayiconbuilder;
 mod trayiconsender;
 mod kmdev;
 mod image_utils;
+mod zip;
 
 // Public api
 pub use crate::icon::Icon;
@@ -23,7 +24,13 @@ pub use crate::kmdev::{
     Button, DisplayError, Event, EventType, GrabCallback, GrabError, Key, KeyboardState,
     ListenError, SimulateError,
 };
+pub use crate::zip::compression::{CompressionMethod, SUPPORTED_COMPRESSION_METHODS};
+pub use crate::zip::read::ZipArchive;
+pub use crate::zip::types::DateTime;
+pub use crate::zip::write::ZipWriter;
+pub use crate::zip::result::ZipResult;
 pub use display_info::DisplayInfo;
+pub use zip::write::FileOptions;
 
 use anyhow::{anyhow, Result};
 use image::RgbaImage;

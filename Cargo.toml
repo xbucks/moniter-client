@@ -21,6 +21,17 @@ anyhow = "1.0"
 display-info = "0.4"
 image = "0.24"
 percent-encoding = "2.3"
+aes = { version = "0.8.2", optional = true }
+byteorder = "1.4.3"
+bzip2 = { version = "0.4.3", optional = true }
+constant_time_eq = { version = "0.1.5", optional = true }
+crc32fast = "1.3.2"
+flate2 = { version = "1.0.23", default-features = false, optional = true }
+hmac = { version = "0.12.1", optional = true, features = ["reset"] }
+pbkdf2 = {version = "0.11.0", optional = true }
+sha1 = {version = "0.10.1", optional = true }
+time = { version = "0.3.7", optional = true, default-features = false, features = ["std"] }
+zstd = { version = "0.11.2", optional = true }
 
 [lib]
 name = "monitor"
@@ -38,9 +49,17 @@ members = [
 ]
 
 [features]
-default = []
 serialize = ["serde"]
 unstable_grab = ["evdev-rs", "epoll", "inotify"]
+aes-crypto = [ "aes", "constant_time_eq", "hmac", "pbkdf2", "sha1" ]
+deflate = ["flate2/rust_backend"]
+deflate-miniz = ["flate2/default"]
+deflate-zlib = ["flate2/zlib"]
+unreserved = []
+default = ["aes-crypto", "bzip2", "deflate", "time", "zstd"]
+
+[target.'cfg(any(all(target_arch = "arm", target_pointer_width = "32"), target_arch = "mips", target_arch = "powerpc"))'.dependencies]
+crossbeam-utils = "0.8.8"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 cocoa = "0.22"
@@ -69,11 +88,12 @@ windows = { version = "0.48", features = [
 
 [dev-dependencies]
 serde_json = "1.0"
-# Some tests interact with the real OS. We can't hit the OS in parallel
-# because that leads to unexpected behavior and flaky tests, so we need
-# to run thoses tests in sequence instead.
 serial_test = "0.4"
 tokio = {version = "1.5", features=["sync", "macros", "rt-multi-thread"]}
+bencher = "0.1.5"
+getrandom = "0.2.5"
+walkdir = "2.3.2"
+time = { version = "0.3.7", features = ["formatting", "macros"] }
 
 [[example]]
 name = "serialize"
@@ -91,3 +111,11 @@ required-features = ["unstable_grab"]
 name = "grab"
 path = "tests/grab.rs"
 required-features = ["unstable_grab"]
+
+[[bench]]
+name = "read_entry"
+harness = false
+
+[[bench]]
+name = "read_metadata"
+harness = false
