@@ -69,7 +69,7 @@ fn main() {
         r.iter().for_each(|m| match m {
             Events::DoubleClickTrayIcon => {
                 println!("Double click");
-                std::process::exit(real_main());
+                real_main();
             }
             Events::ClickTrayIcon => {
                 println!("Single click");
@@ -98,6 +98,7 @@ fn main() {
             }
             Events::Exit => {
                 println!("Please exit");
+                std::process::exit(0);
             }
             Events::Item1 => {
                 tray_icon.set_icon(&second_icon).unwrap();
