@@ -17,6 +17,10 @@ winit = { version = "0.25", optional = true }
 crossbeam-channel = { version = "0.5", optional = true }
 serde = {version = "1.0", features = ["derive"], optional=true}
 lazy_static = "1.4"
+anyhow = "1.0"
+display-info = "0.4"
+image = "0.24"
+percent-encoding = "2.3"
 
 [lib]
 name = "monitor"
@@ -40,7 +44,7 @@ unstable_grab = ["evdev-rs", "epoll", "inotify"]
 
 [target.'cfg(target_os = "macos")'.dependencies]
 cocoa = "0.22"
-core-graphics = {version = "0.19.0", features = ["highsierra"]}
+core-graphics = "0.22"
 core-foundation = {version = "0.7"}
 core-foundation-sys = {version = "0.7"}
 
@@ -50,9 +54,18 @@ x11 = {version = "2.18", features = ["xlib", "xrecord", "xinput"]}
 evdev-rs = {version = "0.4.0", optional=true}
 epoll = {version = "4.1.0", optional=true}
 inotify = {version = "0.8.2", default-features=false, optional=true}
+dbus = { version = "0.9", features = ["vendored"] }
+libwayshot = "0.2"
+xcb = "1.2"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 winapi = { version = "0.3", features = ["winuser", "errhandlingapi", "processthreadsapi"] }
+fxhash = "0.2"
+widestring = "1.0"
+windows = { version = "0.48", features = [
+    "Win32_Foundation",
+    "Win32_Graphics_Gdi",
+] }
 
 [dev-dependencies]
 serde_json = "1.0"

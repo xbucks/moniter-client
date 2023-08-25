@@ -2,6 +2,7 @@ extern crate winapi;
 
 mod common;
 mod display;
+mod win32;
 #[cfg(feature = "unstable_grab")]
 mod grab;
 mod keyboard;

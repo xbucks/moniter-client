@@ -6,6 +6,7 @@ mod keyboard;
 mod keycodes;
 mod listen;
 mod simulate;
+mod darwin;
 
 pub use crate::macos::display::display_size;
 #[cfg(feature = "unstable_grab")]

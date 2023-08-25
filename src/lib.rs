@@ -11,6 +11,7 @@ mod trayicon;
 mod trayiconbuilder;
 mod trayiconsender;
 mod kmdev;
+mod image_utils;
 
 // Public api
 pub use crate::icon::Icon;
