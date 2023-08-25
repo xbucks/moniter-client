@@ -39,11 +39,11 @@ pub use crate::linux::Keyboard;
 use crate::linux::{display_size as _display_size, listen as _listen, simulate as _simulate};
 
 #[cfg(target_os = "windows")]
-mod windows;
+mod win;
 #[cfg(target_os = "windows")]
-pub use crate::windows::Keyboard;
+pub use crate::win::Keyboard;
 #[cfg(target_os = "windows")]
-use crate::windows::{display_size as _display_size, listen as _listen, simulate as _simulate};
+use crate::win::{display_size as _display_size, listen as _listen, simulate as _simulate};
 
 // Each OS specific implementation must export following:
 pub(crate) use crate::sys::{
@@ -105,7 +105,7 @@ pub use crate::linux::grab as _grab;
 pub use crate::macos::grab as _grab;
 #[cfg(feature = "unstable_grab")]
 #[cfg(target_os = "windows")]
-pub use crate::windows::grab as _grab;
+pub use crate::win::grab as _grab;
 #[cfg(any(feature = "unstable_grab"))]
 
 #[cfg(any(feature = "unstable_grab"))]

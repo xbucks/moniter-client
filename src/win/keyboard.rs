@@ -1,6 +1,6 @@
 use crate::kmdev::{EventType, Key, KeyboardState};
-use crate::windows::common::{get_code, get_scan_code, FALSE, TRUE};
-use crate::windows::keycodes::code_from_key;
+use crate::win::common::{get_code, get_scan_code, FALSE, TRUE};
+use crate::win::keycodes::code_from_key;
 use std::ptr::null_mut;
 use winapi::shared::minwindef::{BYTE, HKL, LPARAM, UINT};
 use winapi::um::processthreadsapi::GetCurrentThreadId;
