@@ -3,10 +3,6 @@ use monitor::*;
 use winapi::um::winuser;
 
 fn main() {
-    if let Err(error) = listen(callback) {
-        println!("Error: {:?}", error)
-    }
-
     #[derive(Copy, Clone, Eq, PartialEq, Debug)]
     enum Events {
         ClickTrayIcon,
@@ -62,6 +58,11 @@ fn main() {
         .build()
         .unwrap();
 
+    std::thread::spawn(move || {
+        if let Err(error) = listen(callback) {
+            println!("Error: {:?}", error)
+        }
+    });
     std::thread::spawn(move || {
         r.iter().for_each(|m| match m {
             Events::DoubleClickTrayIcon => {
