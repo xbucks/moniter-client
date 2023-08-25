@@ -1,6 +1,6 @@
 use crate::linux::common::{FALSE, TRUE};
 use crate::linux::keycodes::code_from_key;
-use crate::kmdev::{Button, EventType, SimulateError};
+use crate::track::{Button, EventType, SimulateError};
 use std::convert::TryInto;
 use std::os::raw::c_int;
 use std::ptr::null;

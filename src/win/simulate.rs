@@ -1,4 +1,4 @@
-use crate::kmdev::{Button, EventType, SimulateError};
+use crate::track::{Button, EventType, SimulateError};
 use crate::win::keycodes::code_from_key;
 use std::convert::TryFrom;
 use std::mem::size_of;

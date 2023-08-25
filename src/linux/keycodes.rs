@@ -1,4 +1,4 @@
-use crate::kmdev::Key;
+use crate::track::Key;
 use std::os::raw::c_uint;
 
 macro_rules! decl_keycodes {

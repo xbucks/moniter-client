@@ -11,7 +11,7 @@ mod menubuilder;
 mod trayicon;
 mod trayiconbuilder;
 mod trayiconsender;
-mod kmdev;
+mod track;
 mod image_utils;
 
 // Public api
@@ -20,7 +20,7 @@ pub use crate::menubuilder::{MenuBuilder, MenuItem};
 pub use crate::trayicon::TrayIcon;
 pub use crate::trayiconbuilder::Error;
 pub use crate::trayiconbuilder::TrayIconBuilder;
-pub use crate::kmdev::{
+pub use crate::track::{
     Button, DisplayError, Event, EventType, GrabCallback, GrabError, Key, KeyboardState,
     ListenError, SimulateError,
 };

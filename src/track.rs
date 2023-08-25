@@ -274,7 +274,7 @@ pub struct Event {
 /// won't work.
 ///
 /// ```no_run
-/// use kmdev::{Keyboard, EventType, Key, KeyboardState};
+/// use track::{Keyboard, EventType, Key, KeyboardState};
 ///
 /// let mut keyboard = Keyboard::new().unwrap();
 /// let string = keyboard.add(&EventType::KeyPress(Key::KeyS));

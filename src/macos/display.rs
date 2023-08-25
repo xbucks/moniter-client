@@ -1,4 +1,4 @@
-use crate::kmdev::DisplayError;
+use crate::track::DisplayError;
 use core_graphics::display::CGDisplay;
 
 pub fn display_size() -> Result<(u64, u64), DisplayError> {

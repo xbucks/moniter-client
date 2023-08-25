@@ -1,4 +1,4 @@
-use crate::kmdev::Key;
+use crate::track::Key;
 use std::convert::TryInto;
 use winapi::shared::minwindef::WORD;
 
