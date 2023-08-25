@@ -1,4 +1,4 @@
-use crate::image_utils::png_to_rgba_image;
+use crate::capture::png_to_rgba_image;
 use anyhow::{anyhow, Result};
 use dbus::{
     arg::{AppendAll, Iter, IterAppend, PropMap, ReadAll, RefArg, TypeMismatchError, Variant},

@@ -1,4 +1,4 @@
-use crate::image_utils::{bgra_to_rgba_image, remove_extra_data};
+use crate::capture::{bgra_to_rgba_image, remove_extra_data};
 use anyhow::{anyhow, Result};
 use core_graphics::{
     display::{kCGNullWindowID, kCGWindowImageDefault, kCGWindowListOptionOnScreenOnly, CGDisplay},

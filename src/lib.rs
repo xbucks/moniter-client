@@ -12,7 +12,7 @@ mod trayicon;
 mod trayiconbuilder;
 mod trayiconsender;
 mod track;
-mod image_utils;
+mod capture;
 
 // Public api
 pub use crate::icon::Icon;

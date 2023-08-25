@@ -1,4 +1,4 @@
-use crate::image_utils::bgra_to_rgba_image;
+use crate::capture::bgra_to_rgba_image;
 use anyhow::{anyhow, Result};
 use display_info::DisplayInfo;
 use fxhash::hash32;
