@@ -1,0 +1,10 @@
+[package]
+name = "monitor-winapi-example"
+version = "0.0.1"
+authors = ["Hiroki Moto"]
+edition = "2018"
+publish = false
+
+[dependencies]
+winapi = { version = "0.3.9", features = ["winuser", "windef", "minwindef", "shellapi", "libloaderapi", "commctrl", "basetsd"] }
+monitor = { path = "../../", features = [] }

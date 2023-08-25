@@ -19,8 +19,8 @@ fn main() {
     }
 
     let (s, r) = std::sync::mpsc::channel::<Events>();
-    let icon = include_bytes!("./resources/icon1.ico");
-    let icon2 = include_bytes!("./resources/icon2.ico");
+    let icon = include_bytes!("../../../src/testresource/icon1.ico");
+    let icon2 = include_bytes!("../../../src/testresource/icon2.ico");
 
     let second_icon = Icon::from_buffer(icon2, None, None).unwrap();
     let first_icon = Icon::from_buffer(icon, None, None).unwrap();
