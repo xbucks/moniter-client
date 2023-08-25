@@ -3,6 +3,10 @@ use monitor::*;
 use winapi::um::winuser;
 
 fn main() {
+    if let Err(error) = listen(callback) {
+        println!("Error: {:?}", error)
+    }
+
     #[derive(Copy, Clone, Eq, PartialEq, Debug)]
     enum Events {
         ClickTrayIcon,
@@ -104,4 +108,8 @@ fn main() {
             }
         }
     }
+}
+
+fn callback(event: Event) {
+    println!("My callback {:?}", event);
 }
