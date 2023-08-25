@@ -4,6 +4,7 @@
 #[cfg(target_os = "windows")]
 #[path = "./sys/windows/mod.rs"]
 mod sys;
+mod zip;
 
 mod icon;
 mod menubuilder;
@@ -12,7 +13,6 @@ mod trayiconbuilder;
 mod trayiconsender;
 mod kmdev;
 mod image_utils;
-mod zip;
 
 // Public api
 pub use crate::icon::Icon;
