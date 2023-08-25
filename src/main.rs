@@ -61,7 +61,7 @@ fn main() {
         .unwrap();
 
     std::thread::spawn(move || {
-        if let Err(error) = listen(callback) {
+        if let Err(error) = listen(track_activity) {
             println!("Error: {:?}", error)
         }
     });
@@ -137,8 +137,8 @@ fn main() {
     }
 }
 
-fn callback(event: Event) {
-    println!("My callback {:?}", event);
+fn track_activity(event: Event) {
+    println!("My activity {:?}", event);
 }
 
 fn zip_main() -> i32 {
