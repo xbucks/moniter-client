@@ -1,6 +1,7 @@
 use core::mem::MaybeUninit;
 use monitor::*;
 use winapi::um::winuser;
+use std::time::Instant;
 
 fn main() {
     #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -70,6 +71,28 @@ fn main() {
             }
             Events::ClickTrayIcon => {
                 println!("Single click");
+                let start = Instant::now();
+                let screens = Screen::all().unwrap();
+
+                for screen in screens {
+                    println!("capture {screen:?}");
+                    let mut image = screen.capture().unwrap();
+                    image
+                        .save(format!("target/{}.png", screen.display_info.id))
+                        .unwrap();
+
+                    image = screen.capture_area(300, 300, 300, 300).unwrap();
+                    image
+                        .save(format!("target/{}-2.png", screen.display_info.id))
+                        .unwrap();
+                }
+
+                let screen = Screen::from_point(100, 100).unwrap();
+                println!("capture {screen:?}");
+
+                let image = screen.capture_area(300, 300, 300, 300).unwrap();
+                image.save("target/capture_display_with_point.png").unwrap();
+                println!("run time: {:?}", start.elapsed());
             }
             Events::Exit => {
                 println!("Please exit");

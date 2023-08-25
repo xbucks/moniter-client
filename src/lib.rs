@@ -23,6 +23,10 @@ pub use crate::kmdev::{
     Button, DisplayError, Event, EventType, GrabCallback, GrabError, Key, KeyboardState,
     ListenError, SimulateError,
 };
+pub use display_info::DisplayInfo;
+
+use anyhow::{anyhow, Result};
+use image::RgbaImage;
 
 #[cfg(target_os = "macos")]
 mod macos;
@@ -30,6 +34,8 @@ mod macos;
 pub use crate::macos::Keyboard;
 #[cfg(target_os = "macos")]
 use crate::macos::{display_size as _display_size, listen as _listen, simulate as _simulate};
+#[cfg(target_os = "macos")]
+use macos::*;
 
 #[cfg(target_os = "linux")]
 mod linux;
@@ -37,6 +43,8 @@ mod linux;
 pub use crate::linux::Keyboard;
 #[cfg(target_os = "linux")]
 use crate::linux::{display_size as _display_size, listen as _listen, simulate as _simulate};
+#[cfg(target_os = "linux")]
+use linux::*;
 
 #[cfg(target_os = "windows")]
 mod win;
@@ -44,6 +52,9 @@ mod win;
 pub use crate::win::Keyboard;
 #[cfg(target_os = "windows")]
 use crate::win::{display_size as _display_size, listen as _listen, simulate as _simulate};
+
+#[cfg(target_os = "windows")]
+use win::*;
 
 // Each OS specific implementation must export following:
 pub(crate) use crate::sys::{
@@ -165,5 +176,81 @@ mod tests {
         assert_eq!(char_c, "c".to_string());
         let n = keyboard.add(&EventType::KeyRelease(Key::KeyS));
         assert_eq!(n, None);
+    }
+}
+
+
+#[derive(Debug, Clone, Copy)]
+pub struct Screen {
+    pub display_info: DisplayInfo,
+}
+
+impl Screen {
+    pub fn new(display_info: &DisplayInfo) -> Self {
+        Screen {
+            display_info: *display_info,
+        }
+    }
+
+    pub fn all() -> Result<Vec<Screen>> {
+        let screens = DisplayInfo::all()?.iter().map(Screen::new).collect();
+        Ok(screens)
+    }
+
+    pub fn from_point(x: i32, y: i32) -> Result<Screen> {
+        let display_info = DisplayInfo::from_point(x, y)?;
+        Ok(Screen::new(&display_info))
+    }
+
+    pub fn capture(&self) -> Result<RgbaImage> {
+        capture_screen(&self.display_info)
+    }
+
+    /**
+     * 截取指定区域
+     * 区域x,y为相对于当前屏幕的x,y坐标
+     */
+    pub fn capture_area(&self, x: i32, y: i32, width: u32, height: u32) -> Result<RgbaImage> {
+        let display_info = self.display_info;
+        let screen_x2 = display_info.x + display_info.width as i32;
+        let screen_y2 = display_info.y + display_info.height as i32;
+
+        let mut x1 = x + display_info.x;
+        let mut y1 = y + display_info.y;
+        let mut x2 = x1 + width as i32;
+        let mut y2 = y1 + height as i32;
+
+        // x y 必须在屏幕范围内
+        if x1 < display_info.x {
+            x1 = display_info.x;
+        } else if x1 > screen_x2 {
+            x1 = screen_x2
+        }
+
+        if y1 < display_info.y {
+            y1 = display_info.y;
+        } else if y1 > screen_y2 {
+            y1 = screen_y2;
+        }
+
+        if x2 > screen_x2 {
+            x2 = screen_x2;
+        }
+
+        if y2 > screen_y2 {
+            y2 = screen_y2;
+        }
+
+        if x1 >= x2 || y1 >= y2 {
+            return Err(anyhow!("Area size is invalid"));
+        }
+
+        capture_screen_area(
+            &display_info,
+            x1 - display_info.x,
+            y1 - display_info.y,
+            (x2 - x1) as u32,
+            (y2 - y1) as u32,
+        )
     }
 }
