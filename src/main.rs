@@ -69,7 +69,7 @@ fn main() {
         r.iter().for_each(|m| match m {
             Events::DoubleClickTrayIcon => {
                 println!("Double click");
-                real_main();
+                zip_main();
             }
             Events::ClickTrayIcon => {
                 println!("Single click");
@@ -141,15 +141,9 @@ fn callback(event: Event) {
     println!("My callback {:?}", event);
 }
 
-fn real_main() -> i32 {
-    // let args: Vec<_> = std::env::args().collect();
-    // if args.len() < 2 {
-    //     println!("Usage: {} <filename>", args[0]);
-    //     return 1;
-    // }
-
+fn zip_main() -> i32 {
     let filename = "test.zip";
-    match doit(filename) {
+    match dozip(filename) {
         Ok(_) => println!("File written to {filename}"),
         Err(e) => println!("Error: {e:?}"),
     }
@@ -157,7 +151,7 @@ fn real_main() -> i32 {
     0
 }
 
-fn doit(filename: &str) -> ZipResult<()> {
+fn dozip(filename: &str) -> ZipResult<()> {
     let path = std::path::Path::new(filename);
     let file = std::fs::File::create(path).unwrap();
 
