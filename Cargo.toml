@@ -97,14 +97,17 @@ time = { version = "0.3.7", features = ["formatting", "macros"] }
 
 [[example]]
 name = "serialize"
+path = "track/serialize.rs"
 required-features = ["serialize"]
 
 [[example]]
 name = "grab"
+path = "track/grab.rs"
 required-features = ["unstable_grab"]
 
 [[example]]
 name = "tokio_channel"
+path = "track/tokio_channel.rs"
 required-features = ["unstable_grab"]
 
 [[test]]

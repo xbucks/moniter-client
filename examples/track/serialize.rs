@@ -1,4 +1,4 @@
-use rdev::{Event, EventType, Key};
+use track::{Event, EventType, Key};
 use std::time::SystemTime;
 
 fn main() {

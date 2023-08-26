@@ -1,10 +1,11 @@
-use rdev::listen;
-use std::sync::mpsc::channel;
+use track::listen;
 use std::thread;
+use tokio::sync::mpsc;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     // spawn new thread because listen blocks
-    let (schan, rchan) = channel();
+    let (schan, mut rchan) = mpsc::unbounded_channel();
     let _listener = thread::spawn(move || {
         listen(move |event| {
             schan
@@ -14,9 +15,8 @@ fn main() {
         .expect("Could not listen");
     });
 
-    let mut events = Vec::new();
-    for event in rchan.iter() {
+    loop {
+        let event = rchan.recv().await;
         println!("Received {:?}", event);
-        events.push(event);
     }
 }

@@ -1,4 +1,4 @@
-use rdev::{simulate, Button, EventType, Key, SimulateError};
+use track::{simulate, Button, EventType, Key, SimulateError};
 use std::{thread, time};
 
 fn send(event_type: &EventType) {
