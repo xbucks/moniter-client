@@ -4,22 +4,18 @@
 #[cfg(target_os = "windows")]
 #[path = "./sys/windows/mod.rs"]
 mod sys;
+mod tray;
 mod zip;
 
-mod icon;
-mod menubuilder;
-mod trayicon;
-mod trayiconbuilder;
-mod trayiconsender;
 mod track;
 mod capture;
 
 // Public api
-pub use crate::icon::Icon;
-pub use crate::menubuilder::{MenuBuilder, MenuItem};
-pub use crate::trayicon::TrayIcon;
-pub use crate::trayiconbuilder::Error;
-pub use crate::trayiconbuilder::TrayIconBuilder;
+pub use crate::tray::icon::Icon;
+pub use crate::tray::menubuilder::{MenuBuilder, MenuItem};
+pub use crate::tray::trayicon::TrayIcon;
+pub use crate::tray::trayiconbuilder::Error;
+pub use crate::tray::trayiconbuilder::TrayIconBuilder;
 pub use crate::track::{
     Button, DisplayError, Event, EventType, GrabCallback, GrabError, Key, KeyboardState,
     ListenError, SimulateError,

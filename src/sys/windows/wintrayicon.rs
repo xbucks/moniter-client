@@ -9,7 +9,7 @@ use winapi::um::winuser;
 
 use super::wchar::wchar;
 use super::{msgs, winnotifyicon::WinNotifyIcon, MenuSys};
-use crate::{trayiconsender::TrayIconSender, Error, Icon, MenuBuilder, TrayIconBase};
+use crate::{tray::trayiconsender::TrayIconSender, Error, Icon, MenuBuilder, TrayIconBase};
 
 pub type WinTrayIcon<T> = WindowBox<T>;
 

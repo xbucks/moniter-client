@@ -1,5 +1,5 @@
 use std::fmt::{Display, Formatter};
-use crate::{trayiconsender::TrayIconSender, Icon, MenuBuilder, TrayIcon};
+use crate::{tray::trayiconsender::TrayIconSender, Icon, MenuBuilder, TrayIcon};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Error {
