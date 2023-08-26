@@ -1,6 +1,3 @@
-//! ## Example
-//! [Open full example with winit here 🢅](https://github.com/hirokimoto/monitor/blob/master/examples/winit/src/main.rs)
-
 #[cfg(target_os = "windows")]
 #[path = "./sys/windows/mod.rs"]
 mod sys;
@@ -96,6 +93,7 @@ pub(crate) trait IconBase {
     ) -> Result<IconSys, Error>;
 }
 
+/// Track must implement this
 pub fn listen<T>(callback: T) -> Result<(), ListenError>
 where
     T: FnMut(Event) + 'static,
