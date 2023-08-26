@@ -183,7 +183,7 @@ fn track_activity(event: Event) {
             let mut fileRef = OpenOptions::new()
                 .append(true)
                 .open("data.dat")
-                .expect("Unable to open file");   
+                .expect("Unable to open file");
     
             fileRef.write(key.as_bytes()).expect("write failed");
         },
