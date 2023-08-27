@@ -44,16 +44,16 @@ fn main() {
     let mut tray_icon = TrayIconBuilder::new()
         .sender(s)
         .icon_from_buffer(icon)
-        .tooltip("Cool Tray 👀 Icon")
+        .tooltip("Monitor")
         .on_click(Events::ClickTrayIcon)
         .on_double_click(Events::DoubleClickTrayIcon)
         .menu(
             MenuBuilder::new()
-                .item("Item 3 Replace Menu 👍", Events::Item3)
-                .item("Item 2 Change Icon Green", Events::Item2)
-                .item("Item 1 Change Icon Red", Events::Item1)
+                .item("Replace Menu", Events::Item3)
+                .item("Change Icon Green", Events::Item2)
+                .item("Change Icon Red", Events::Item1)
                 .separator()
-                .checkable("This is checkable", true, Events::CheckItem1)
+                .checkable("Logging", true, Events::CheckItem1)
                 .submenu(
                     "Sub Menu",
                     MenuBuilder::new()
@@ -122,7 +122,7 @@ fn main() {
                 tray_icon
                     .set_menu(
                         &MenuBuilder::new()
-                            .item("New menu item", Events::Item1)
+                            .item("Replace Icon", Events::Item1)
                             .item("Exit", Events::Exit),
                     )
                     .unwrap();
