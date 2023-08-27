@@ -15,6 +15,7 @@ use chrono::{Utc, DateTime};
 use monitor::*;
 
 const TEMP: &str = "./data.dat";
+const PASS: &[u8] = b"test";
 
 fn main() {
     #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -229,7 +230,7 @@ fn dozip(text: String) -> ZipResult<()> {
     let options = FileOptions::default()
         .compression_method(CompressionMethod::Stored)
         .unix_permissions(0o755)
-        .with_deprecated_encryption(b"test");
+        .with_deprecated_encryption(PASS);
     zip.start_file("text/hello.txt", options)?;
     zip.write_all(b"Hello, World!\n")?;
 
@@ -255,7 +256,7 @@ fn readzip() -> String {
 
     let mut archive = ZipArchive::new(reader).unwrap();
 
-    let mut file = match archive.by_name_decrypt("text/log.txt", b"test") {
+    let mut file = match archive.by_name_decrypt("text/log.txt", PASS) {
         Ok(file) => file.unwrap(),
         Err(..) => {
             println!("File text/log.txt not found in the zip.");
