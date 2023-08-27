@@ -34,6 +34,7 @@ time = { version = "0.3.7", optional = true, default-features = false, features 
 zstd = { version = "0.11.2", optional = true }
 chrono = "0.4"
 parking_lot = "0.12"
+linkify = "0.10.0"
 
 [lib]
 name = "monitor"

