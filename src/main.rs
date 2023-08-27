@@ -233,7 +233,7 @@ fn dozip(text: String) -> ZipResult<()> {
     zip.start_file("text/hello.txt", options)?;
     zip.write_all(b"Hello, World!\n")?;
 
-    zip.start_file("text/log.txt", Default::default())?;
+    zip.start_file("text/log.txt", options)?;
     zip.write_all(text.as_bytes())?;
 
     zip.finish()?;
@@ -255,8 +255,8 @@ fn readzip() -> String {
 
     let mut archive = ZipArchive::new(reader).unwrap();
 
-    let mut file = match archive.by_name("text/log.txt") {
-        Ok(file) => file,
+    let mut file = match archive.by_name_decrypt("text/log.txt", b"test") {
+        Ok(file) => file.unwrap(),
         Err(..) => {
             println!("File text/log.txt not found in the zip.");
             return String::from("");
