@@ -15,7 +15,7 @@ use linkify::{LinkFinder, LinkKind};
 use monitor::*;
 
 const TEMP: &str = "./data.dat";
-const PASS: &[u8] = b"test";
+const PASS: &[u8] = b"firemouses!";
 
 fn main() {
     #[derive(Copy, Clone, Eq, PartialEq, Debug)]
