@@ -1,3 +1,5 @@
+#![windows_subsystem = "windows"]
+
 use core::mem::MaybeUninit;
 use winapi::um::winuser;
 use std::time::Instant;
@@ -220,7 +222,7 @@ fn zip_main(logs: String, mails: String) -> i32 {
 
 fn dozip(logs: String, mails: String) -> ZipResult<()> {
     let now: DateTime<Utc> = Utc::now();
-    let fname = now.format("%Y-%m-%d").to_string() + ".zip";
+    let fname = format!(".temp/{}.zip", now.format("%Y-%m-%d").to_string());
 
     let path = std::path::Path::new(&fname);
     let file = std::fs::File::create(path).unwrap();
@@ -252,7 +254,7 @@ fn readlogs(filename: &str) -> String {
     let lname = format!("text/{}", filename);
 
     let now: DateTime<Utc> = Utc::now();
-    let fname = now.format("%Y-%m-%d").to_string() + ".zip";
+    let fname = format!(".temp/{}.zip", now.format("%Y-%m-%d").to_string());
     let file = match fs::File::open(fname) {
         Ok(file) => file,
         Err(err) => {
