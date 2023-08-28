@@ -60,15 +60,12 @@ impl LoginWindow {
 
         let self2 = self.clone();
         self.txt_password.on().en_change(move || {
-			// let text = self2.txt_name.text();
-			// self2.wnd.set_text(&text);
 			Ok(())
 		});
 
         let self2 = self.clone();
         self.btn_login.on().bn_clicked(move || {
             let text = self2.txt_password.text();
-            // Password::save(&text);
             let valid: bool = Password::verify(&text);
             Ok(())
         });
