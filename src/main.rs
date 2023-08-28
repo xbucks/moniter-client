@@ -55,7 +55,13 @@ fn main() {
                 .item("Change Icon Green", Events::Item2)
                 .item("Change Icon Red", Events::Item1)
                 .separator()
-                .checkable("Logging", true, Events::CheckItem1)
+                .with(MenuItem::Checkable {
+                    name: "Logging".into(),
+                    is_checked: true,
+                    disabled: true,
+                    id: Events::CheckItem1,
+                    icon: None,
+                })
                 .submenu(
                     "Logs",
                     MenuBuilder::new()
@@ -63,13 +69,8 @@ fn main() {
                         .item("Emails", Events::SubItem2)
                         .item("Screenshots", Events::SubItem3),
                 )
-                .with(MenuItem::Item {
-                    name: "Item Disabled".into(),
-                    disabled: true,
-                    id: Events::Item4,
-                    icon: None,
-                })
                 .separator()
+                .item("Login", Events::Item4)
                 .item("E&xit", Events::Exit),
         )
         .build()
