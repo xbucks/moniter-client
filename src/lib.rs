@@ -28,6 +28,7 @@ pub use crate::capture::Screen;
 pub use zip::write::FileOptions;
 
 pub use frames::basic::MyWindow;
+pub use frames::login::LoginWindow;
 
 use anyhow::{anyhow, Result};
 use image::RgbaImage;

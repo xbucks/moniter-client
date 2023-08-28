@@ -130,9 +130,15 @@ fn main() {
                     )
                     .unwrap();
             }
+            Events::Item4 => {
+                let my = LoginWindow::new();
+                if let Err(e) = my.wnd.run_main(None) {
+                    eprintln!("{}", e);
+                }
+            }
             Events::SubItem1 => {
-                let my = MyWindow::new(); // instantiate our main window
-                if let Err(e) = my.wnd.run_main(None) { // ... and run it
+                let my = MyWindow::new();
+                if let Err(e) = my.wnd.run_main(None) {
                     eprintln!("{}", e);
                 }
             }
