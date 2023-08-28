@@ -1,4 +1,5 @@
 use winsafe::{self as w, prelude::*, gui};
+use winsafe::co::ES;
 use crate::password::*;
 
 #[derive(Clone)]
@@ -24,6 +25,7 @@ impl LoginWindow {
 			gui::EditOpts {
 				position: (20, 30),
 				width: 260,
+                edit_style: ES::PASSWORD,
 				..Default::default()
 			},
 		);
@@ -55,11 +57,23 @@ impl LoginWindow {
 
     fn events(&self) {
         let wnd = self.wnd.clone();
+
+        let self2 = self.clone();
+        self.txt_password.on().en_change(move || {
+			// let text = self2.txt_name.text();
+			// self2.wnd.set_text(&text);
+			Ok(())
+		});
+
+        let self2 = self.clone();
         self.btn_login.on().bn_clicked(move || {
-            Password::save("test");
-            Password::verify("test");
+            let text = self2.txt_password.text();
+            Password::save(&text);
+            Password::verify(&text);
+            println!("{}", text);
             Ok(())
         });
+
         self.btn_cancel.on().bn_clicked(move || {
             wnd.hwnd().DestroyWindow().ok();
             Ok(())
