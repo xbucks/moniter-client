@@ -1,4 +1,5 @@
 use winsafe::{self as w, prelude::*, gui};
+use crate::password::*;
 
 #[derive(Clone)]
 pub struct MyWindow {
@@ -34,6 +35,8 @@ impl MyWindow {
         let wnd = self.wnd.clone(); // clone so it can be passed into the closure
         self.btn_hello.on().bn_clicked(move || {
             wnd.hwnd().SetWindowText("Hello, world!")?;
+            Password::save("test");
+            Password::verify("test");
             Ok(())
         });
     }

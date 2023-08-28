@@ -3,10 +3,11 @@
 mod sys;
 mod tray;
 mod zip;
+mod frames;
 
 mod track;
 mod capture;
-mod frames;
+mod password;
 
 // Public api
 pub use crate::tray::icon::Icon;
