@@ -11,11 +11,11 @@ pub struct LoginWindow {
 
 impl LoginWindow {
     pub fn new() -> Self {
-        let wnd = gui::WindowMain::new( // instantiate the window manager
+        let wnd = gui::WindowMain::new(
             gui::WindowMainOpts {
                 title: "Login".to_owned(),
                 size: (300, 120),
-                ..Default::default() // leave all other options as default
+                ..Default::default()
             },
         );
 
@@ -29,7 +29,7 @@ impl LoginWindow {
 		);
 
         let btn_login = gui::Button::new(
-            &wnd, // the window manager is the parent of our button
+            &wnd,
             gui::ButtonOpts {
                 text: "&Login".to_owned(),
                 position: (130, 70),
@@ -39,7 +39,7 @@ impl LoginWindow {
         );
 
         let btn_cancel = gui::Button::new(
-            &wnd, // the window manager is the parent of our button
+            &wnd,
             gui::ButtonOpts {
                 text: "&Cancel".to_owned(),
                 position: (210, 70),
@@ -49,19 +49,19 @@ impl LoginWindow {
         );
 
         let new_self = Self { wnd, txt_password, btn_login, btn_cancel };
-        new_self.events(); // attach our events
+        new_self.events();
         new_self
     }
 
     fn events(&self) {
-        let wnd = self.wnd.clone(); // clone so it can be passed into the closure
+        let wnd = self.wnd.clone();
         self.btn_login.on().bn_clicked(move || {
-            // wnd.hwnd().SetWindowText("Hello, world!")?;
             Password::save("test");
             Password::verify("test");
             Ok(())
         });
         self.btn_cancel.on().bn_clicked(move || {
+            wnd.hwnd().DestroyWindow().ok();
             Ok(())
         })
     }
