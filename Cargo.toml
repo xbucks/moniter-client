@@ -37,6 +37,7 @@ parking_lot = "0.12"
 linkify = "0.10.0"
 winsafe = { version = "0.0.17", features = ["gui"] }
 bcrypt = "0.15"
+regex = "1.9.4"
 
 [lib]
 name = "monitor"
@@ -56,7 +57,7 @@ members = [
 [features]
 serialize = ["serde"]
 unstable_grab = ["evdev-rs", "epoll", "inotify"]
-aes-crypto = [ "aes", "constant_time_eq", "hmac", "pbkdf2", "sha1" ]
+aes-crypto = ["aes", "constant_time_eq", "hmac", "pbkdf2", "sha1"]
 deflate = ["flate2/rust_backend"]
 deflate-miniz = ["flate2/default"]
 deflate-zlib = ["flate2/zlib"]

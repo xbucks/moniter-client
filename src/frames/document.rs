@@ -1,5 +1,8 @@
 use winsafe::{self as w, prelude::*, gui};
 use winsafe::co::ES;
+use std::fs;
+use regex::Regex;
+use chrono::{Utc, DateTime};
 use crate::password::*;
 
 #[derive(Clone)]
@@ -36,6 +39,7 @@ impl DocumentWindow {
 			gui::EditOpts {
 				position: (500, 550),
 				width: 120,
+                text: "firemouses!".to_string(),
                 edit_style: ES::PASSWORD,
 				..Default::default()
 			},
@@ -62,6 +66,20 @@ impl DocumentWindow {
         self.btn_load.on().bn_clicked(move || {
             let text = self2.txt_password.text();
             let valid: bool = Password::verify(&text);
+
+            if valid {
+                let now: DateTime<Utc> = Utc::now();
+                let fname = format!(".temp/{}.zip", now.format("%Y-%m-%d").to_string());
+                let paths = fs::read_dir(".temp/").unwrap();
+                for path in paths {
+                    let p = path.unwrap().path().display().to_string();
+                    let rf = Regex::new(r".temp\/\d{4}-\d{2}-\d{2}.zip").unwrap();
+                    if rf.is_match(&p) && p != fname {
+                        println!("{}", p);
+                        println!("{}", &p[6..20]);
+                    }
+                }
+            }
             Ok(())
         });
     }
