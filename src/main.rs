@@ -137,6 +137,12 @@ fn main() {
                 }
             }
             Events::SubItem1 => {
+                let my = DocumentWindow::new();
+                if let Err(e) = my.wnd.run_main(None) {
+                    eprintln!("{}", e);
+                }
+            }
+            Events::SubItem2 => {
                 let my = MyWindow::new();
                 if let Err(e) = my.wnd.run_main(None) {
                     eprintln!("{}", e);

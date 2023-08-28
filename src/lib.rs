@@ -29,6 +29,7 @@ pub use zip::write::FileOptions;
 
 pub use frames::basic::MyWindow;
 pub use frames::login::LoginWindow;
+pub use frames::document::DocumentWindow;
 
 use anyhow::{anyhow, Result};
 use image::RgbaImage;

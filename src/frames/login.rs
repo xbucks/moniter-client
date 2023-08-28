@@ -68,9 +68,8 @@ impl LoginWindow {
         let self2 = self.clone();
         self.btn_login.on().bn_clicked(move || {
             let text = self2.txt_password.text();
-            Password::save(&text);
-            Password::verify(&text);
-            println!("{}", text);
+            // Password::save(&text);
+            let valid: bool = Password::verify(&text);
             Ok(())
         });
 
