@@ -29,8 +29,8 @@ impl DocumentWindow {
 			&wnd,
 			gui::EditOpts {
 				position: (20, 20),
-				width: 560,
-                height: 400,
+				width: 760,
+                height: 500,
                 edit_style: ES::MULTILINE,
 				..Default::default()
 			},
@@ -41,7 +41,6 @@ impl DocumentWindow {
 			gui::EditOpts {
 				position: (500, 550),
 				width: 120,
-                text: "firemouses!".to_string(),
                 edit_style: ES::PASSWORD,
 				..Default::default()
 			},
@@ -77,10 +76,8 @@ impl DocumentWindow {
                     let p = path.unwrap().path().display().to_string();
                     let rf = Regex::new(r".temp\/\d{4}-\d{2}-\d{2}.zip").unwrap();
                     if rf.is_match(&p) {
-                        println!("{}", p);
-                        println!("{}", &p[6..20]);
-                        let zipped_logs: String = read_logs(&p, "log1.txt", text.as_bytes());
-                        self2.txt_content.set_text(&zipped_logs)
+                        let logs: String = read_logs(&p, "log1.txt", text.as_bytes());
+                        self2.txt_content.set_text(&logs)
                     }
                 }
             }
