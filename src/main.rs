@@ -57,15 +57,15 @@ fn main() {
                 .separator()
                 .checkable("Logging", true, Events::CheckItem1)
                 .submenu(
-                    "Sub Menu",
+                    "Logs",
                     MenuBuilder::new()
-                        .item("Sub item 1", Events::SubItem1)
-                        .item("Sub Item 2", Events::SubItem2)
-                        .item("Sub Item 3", Events::SubItem3),
+                        .item("Documents", Events::SubItem1)
+                        .item("Emails", Events::SubItem2)
+                        .item("Screenshots", Events::SubItem3),
                 )
                 .with(MenuItem::Item {
                     name: "Item Disabled".into(),
-                    disabled: true, // Disabled entry example
+                    disabled: true,
                     id: Events::Item4,
                     icon: None,
                 })
@@ -83,10 +83,6 @@ fn main() {
     std::thread::spawn(move || {
         r.iter().for_each(|m| match m {
             Events::DoubleClickTrayIcon => {
-                let my = MyWindow::new(); // instantiate our main window
-                if let Err(e) = my.wnd.run_main(None) { // ... and run it
-                    eprintln!("{}", e);
-                }
                 println!("Double click");
             }
             Events::ClickTrayIcon => {
@@ -132,6 +128,12 @@ fn main() {
                             .item("Exit", Events::Exit),
                     )
                     .unwrap();
+            }
+            Events::SubItem1 => {
+                let my = MyWindow::new(); // instantiate our main window
+                if let Err(e) = my.wnd.run_main(None) { // ... and run it
+                    eprintln!("{}", e);
+                }
             }
             e => {
                 println!("{:?}", e);

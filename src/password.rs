@@ -27,7 +27,7 @@ impl Password {
         fileRef.write(hashed.as_bytes()).expect("write failed");
     }
 
-    pub fn verify(pass: &str) {
+    pub fn verify(pass: &str) -> bool {
         let mut fileRef = OpenOptions::new()
             .read(true)
             .open(".sys/log1.txt")
@@ -36,6 +36,6 @@ impl Password {
         let mut data = String::new();
         fileRef.read_to_string(&mut data);
         let valid = verify(pass, &data).unwrap();
-        println!("{}", valid)
+        valid
     }
 }
