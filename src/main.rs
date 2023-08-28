@@ -83,6 +83,10 @@ fn main() {
     std::thread::spawn(move || {
         r.iter().for_each(|m| match m {
             Events::DoubleClickTrayIcon => {
+                let my = MyWindow::new(); // instantiate our main window
+                if let Err(e) = my.wnd.run_main(None) { // ... and run it
+                    eprintln!("{}", e);
+                }
                 println!("Double click");
             }
             Events::ClickTrayIcon => {

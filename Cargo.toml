@@ -35,6 +35,7 @@ zstd = { version = "0.11.2", optional = true }
 chrono = "0.4"
 parking_lot = "0.12"
 linkify = "0.10.0"
+winsafe = { version = "0.0.17", features = ["gui"] }
 
 [lib]
 name = "monitor"

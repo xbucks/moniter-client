@@ -6,6 +6,7 @@ mod zip;
 
 mod track;
 mod capture;
+mod frames;
 
 // Public api
 pub use crate::tray::icon::Icon;
@@ -24,6 +25,8 @@ pub use crate::zip::write::ZipWriter;
 pub use crate::zip::result::ZipResult;
 pub use crate::capture::Screen;
 pub use zip::write::FileOptions;
+
+pub use frames::basic::MyWindow;
 
 use anyhow::{anyhow, Result};
 use image::RgbaImage;
