@@ -3,7 +3,9 @@ use winsafe::co::ES;
 use std::fs;
 use regex::Regex;
 use chrono::{Utc, DateTime};
+
 use crate::password::*;
+use crate::utils::*;
 
 #[derive(Clone)]
 pub struct DocumentWindow {
@@ -29,7 +31,7 @@ impl DocumentWindow {
 				position: (20, 20),
 				width: 560,
                 height: 400,
-                edit_style: ES::PASSWORD,
+                edit_style: ES::MULTILINE,
 				..Default::default()
 			},
 		);
@@ -74,9 +76,11 @@ impl DocumentWindow {
                 for path in paths {
                     let p = path.unwrap().path().display().to_string();
                     let rf = Regex::new(r".temp\/\d{4}-\d{2}-\d{2}.zip").unwrap();
-                    if rf.is_match(&p) && p != fname {
+                    if rf.is_match(&p) {
                         println!("{}", p);
                         println!("{}", &p[6..20]);
+                        let zipped_logs: String = read_logs(&p, "log1.txt", text.as_bytes());
+                        self2.txt_content.set_text(&zipped_logs)
                     }
                 }
             }

@@ -8,6 +8,7 @@ mod frames;
 mod track;
 mod capture;
 mod password;
+mod utils;
 
 // Public api
 pub use crate::tray::icon::Icon;
