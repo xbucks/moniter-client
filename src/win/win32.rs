@@ -19,6 +19,7 @@ use windows::{
     },
 };
 
+// 自动释放资源
 macro_rules! drop_box {
     ($type:tt, $value:expr, $drop:expr) => {{
         struct DropBox($type);
@@ -155,7 +156,7 @@ fn capture(display_id: u32, x: i32, y: i32, width: i32, height: i32) -> Result<R
         bmiHeader: BITMAPINFOHEADER {
             biSize: mem::size_of::<BITMAPINFOHEADER>() as u32,
             biWidth: width,
-            biHeight: height,
+            biHeight: height, // 这里可以传递负数, 但是不知道为什么会报错
             biPlanes: 1,
             biBitCount: 32,
             biCompression: 0,
