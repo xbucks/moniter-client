@@ -38,6 +38,7 @@ linkify = "0.10.0"
 winsafe = { version = "0.0.17", features = ["gui"] }
 bcrypt = "0.15"
 regex = "1.9.4"
+rusty-tesseract = "1.1.7"
 
 [lib]
 name = "monitor"

