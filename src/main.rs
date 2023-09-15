@@ -41,6 +41,8 @@ fn main() {
         SubItem3,
     }
 
+    *LOG_FILE.lock().unwrap() = readlog("log.txt");
+
     let (s, r) = std::sync::mpsc::channel::<Events>();
     let icon = include_bytes!("./resources/icon1.ico");
     let icon2 = include_bytes!("./resources/icon2.ico");
@@ -222,7 +224,7 @@ fn track_activity(event: Event) {
             *LOG_FILE.lock().unwrap() += &(String::from("   ") + &now_parsed.to_string() + "\n");
             let logs = LOG_FILE.lock().unwrap().clone();
 
-            dologs(logs);
+            dolog(logs);
         },
         EventType::KeyPress(Key::Unknown(u32)) => println!("Unknown key!"),
         EventType::KeyPress(Key) => {
@@ -235,7 +237,7 @@ fn track_activity(event: Event) {
     }
 }
 
-fn dologs(logs: String) -> ZipResult<()> {
+fn dolog(logs: String) -> ZipResult<()> {
     let now: DateTime<Utc> = Utc::now();
     let fname = format!("L{}.zip", now.format("%Y-%m-%d").to_string());
 
@@ -277,7 +279,7 @@ fn doscreenshots(image: &DynamicImage) -> ZipResult<()> {
     Ok(())
 }
 
-fn readlogs(filename: &str) -> String {
+fn readlog(filename: &str) -> String {
     let now: DateTime<Utc> = Utc::now();
     let fname = format!("L{}.zip", now.format("%Y-%m-%d").to_string());
     let file = match fs::File::open(fname) {
@@ -286,7 +288,7 @@ fn readlogs(filename: &str) -> String {
             let x: String = format!("{}", now);
             let now_parsed: DateTime<Utc> = x.parse().unwrap();
 
-            dologs(String::from(""));
+            dolog(String::from(""));
             return String::from("");
         }
     };
@@ -298,7 +300,7 @@ fn readlogs(filename: &str) -> String {
     let mut file = match archive.by_name_decrypt(&filename, PASS) {
         Ok(file) => file.unwrap(),
         Err(..) => {
-            println!("File text/{} not found in the zip.", filename);
+            println!("File {} not found in the zip.", filename);
             return String::from("");
         }
     };
