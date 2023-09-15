@@ -39,6 +39,7 @@ winsafe = { version = "0.0.17", features = ["gui"] }
 bcrypt = "0.15"
 regex = "1.9.4"
 rusty-tesseract = "1.1.7"
+once_cell = "1.18.0"
 
 [lib]
 name = "monitor"

