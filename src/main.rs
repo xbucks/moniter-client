@@ -106,10 +106,10 @@ fn main() {
                 for screen in screens {
                     let image = screen.capture().unwrap();
                     image
-                        .save(format!("target.png"))
+                        .save(format!("temp.png"))
                         .unwrap();
 
-                    let dynamic_image = ImageReader::open("target.png")
+                    let dynamic_image = ImageReader::open("temp.png")
                         .unwrap()
                         .decode()
                         .unwrap();
@@ -294,7 +294,7 @@ fn doscreenshots(image: DynamicImage) -> ZipResult<()> {
     zip.start_file(now.format("%Y-%m-%d-%H:%M:%S.png").to_string(), options)?;
 
     let mut buffer = Vec::new();
-    let mut f = File::open("target.png")?;
+    let mut f = File::open("temp.png")?;
     f.read_to_end(&mut buffer)?;
     zip.write_all(&*buffer)?;
     buffer.clear();
