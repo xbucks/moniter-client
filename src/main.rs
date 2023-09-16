@@ -109,11 +109,7 @@ fn main() {
                         .save(format!("temp.png"))
                         .unwrap();
 
-                    let dynamic_image = ImageReader::open("temp.png")
-                        .unwrap()
-                        .decode()
-                        .unwrap();
-                    let img = Image::from_dynamic_image(&dynamic_image).unwrap();
+                    let img = Image::from_path("temp.png").unwrap();
 
                     // fill your own argument struct if needed
                     let image_to_string_args = Args {
@@ -136,10 +132,10 @@ fn main() {
 
                     let ok = re.is_match(&output);
 
-                    if ok {
-                        println!("Great works!!!");
-                        doscreenshots(dynamic_image);
-                    }
+                    // if ok {
+                    //     println!("Great works!!!");
+                    //     doscreenshots(dynamic_image);
+                    // }
                 }
             }
             Events::Exit => {
