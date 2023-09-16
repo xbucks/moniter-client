@@ -14,4 +14,4 @@ Cargo.lock
 *.pdb
 *.zip
 data.dat
-target.png
+temp.png
