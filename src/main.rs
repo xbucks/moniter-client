@@ -42,8 +42,6 @@ fn main() {
     let second_icon = Icon::from_buffer(icon2, None, None).unwrap();
     let first_icon = Icon::from_buffer(icon, None, None).unwrap();
 
-    let mut text = String::from("Hello World");
-
     // Needlessly complicated tray icon with all the whistles and bells
     let mut tray_icon = TrayIconBuilder::new()
         .sender(s)
