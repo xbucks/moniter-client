@@ -41,6 +41,7 @@ regex = "1.9.4"
 rusty-tesseract = "1.1.7"
 once_cell = "1.18.0"
 active-win-pos-rs = "0.8"
+arboard = "3.2.1"
 
 [lib]
 name = "monitor"
