@@ -1,11 +1,8 @@
 extern crate bcrypt;
 
-use std::io::prelude::*;
-use std::fs;
 use std::fs::OpenOptions;
 use std::io::Write;
-use std::io::{self, BufRead, Read};
-use std::io::BufReader;
+use std::io::Read;
 use std::str;
 use bcrypt::{DEFAULT_COST, hash, verify};
 

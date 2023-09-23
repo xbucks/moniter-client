@@ -1,6 +1,6 @@
 use chrono::{Utc, DateTime};
 use std::fs;
-use std::io::{self, BufRead, Read};
+use std::io::Read;
 use std::io::BufReader;
 
 use crate::zip::read::ZipArchive;
