@@ -4,14 +4,13 @@ use core::mem::MaybeUninit;
 use winapi::um::winuser;
 use std::collections::HashMap;
 use std::fs;
-use std::fs::File;
+use std::fs::{File, OpenOptions};
 use std::io::Write;
 use std::io::Read;
 use std::io::BufReader;
 use std::str;
 use chrono::{Utc, DateTime};
 use linkify::{LinkFinder, LinkKind};
-use image::DynamicImage;
 use rusty_tesseract::{Args, Image};
 use regex::RegexBuilder;
 use std::sync::Mutex;
@@ -280,9 +279,13 @@ fn doscreenshots() -> ZipResult<()> {
     let fname = format!("S{}.zip", now.format("%Y-%m-%d").to_string());
 
     let path = std::path::Path::new(&fname);
-    let file = std::fs::File::create(path).unwrap();
+    let file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .open(path).unwrap();
 
-    let mut zip = ZipWriter::new(file);
+    let mut zip = ZipWriter::new_append(file).unwrap();
 
     let options = FileOptions::default()
         .compression_method(CompressionMethod::Stored)
