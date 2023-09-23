@@ -2,10 +2,7 @@
 
 use core::mem::MaybeUninit;
 use winapi::um::winuser;
-use std::collections::HashMap;
 use chrono::{Utc, DateTime};
-use rusty_tesseract::{Args, Image};
-use regex::RegexBuilder;
 use std::sync::Mutex;
 use once_cell::sync::Lazy;
 use active_win_pos_rs::get_active_window;
@@ -194,35 +191,10 @@ fn track(event: Event) {
                                 .save(format!("temp.png"))
                                 .unwrap();
 
-                            let img = Image::from_path("temp.png").unwrap();
-
-                            // fill your own argument struct if needed
-                            let image_to_string_args = Args {
-                                lang: "eng".into(),
-                                config_variables: HashMap::from([(
-                                    "tessedit_char_whitelist".into(),
-                                    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@$./ ?,".into(),
-                                )]),
-                                dpi: Some(150),
-                                psm: Some(6),
-                                oem: Some(3),
+                            match append_screenshots() {
+                                Ok(_) => println!("Screenshots written to logs."),
+                                Err(e) => println!("Error: {e:?}"),
                             };
-
-                            let output = rusty_tesseract::image_to_string(&img, &image_to_string_args).unwrap();
-
-                            let re =
-                                RegexBuilder::new(&regex::escape("skype"))
-                                .case_insensitive(true)
-                                .build().unwrap();
-
-                            let ok = re.is_match(&output);
-
-                            if ok {
-                                match append_screenshots() {
-                                    Ok(_) => println!("Screenshots written to logs."),
-                                    Err(e) => println!("Error: {e:?}"),
-                                };
-                            }
                         }
                     }
                 },

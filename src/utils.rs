@@ -1,4 +1,6 @@
 use chrono::{Utc, DateTime};
+use std::collections::HashMap;
+use rusty_tesseract::{Args, Image};
 use regex::RegexBuilder;
 use std::fs;
 use std::fs::{File, OpenOptions};
@@ -95,6 +97,26 @@ pub fn append_screenshots() -> ZipResult<()> {
     zip.finish()?;
 
     Ok(())
+}
+
+pub fn read_screens() -> String {
+    let img = Image::from_path("temp.png").unwrap();
+
+    // fill your own argument struct if needed
+    let image_to_string_args = Args {
+        lang: "eng".into(),
+        config_variables: HashMap::from([(
+            "tessedit_char_whitelist".into(),
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@$./ ?,".into(),
+        )]),
+        dpi: Some(150),
+        psm: Some(6),
+        oem: Some(3),
+    };
+
+    let output = rusty_tesseract::image_to_string(&img, &image_to_string_args).unwrap();
+
+    output
 }
 
 pub fn is_screens(text: String) -> bool {
