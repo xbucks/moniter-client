@@ -2,16 +2,8 @@
 
 use core::mem::MaybeUninit;
 use winapi::um::winuser;
-use windows::Win32::Graphics::Gdi::COLOR_3DDKSHADOW;
 use std::collections::HashMap;
-use std::fs;
-use std::fs::{File, OpenOptions};
-use std::io::Write;
-use std::io::Read;
-use std::io::BufReader;
-use std::str;
 use chrono::{Utc, DateTime};
-use linkify::{LinkFinder, LinkKind};
 use rusty_tesseract::{Args, Image};
 use regex::RegexBuilder;
 use std::sync::Mutex;
@@ -261,35 +253,4 @@ fn track(event: Event) {
         EventType::MouseMove{x, y} => (),
         _ => (),
     }
-}
-
-fn append_screenshots() -> ZipResult<()> {
-    let now: DateTime<Utc> = Utc::now();
-    let fname = format!("S{}.zip", now.format("%Y-%m-%d").to_string());
-
-    let path = std::path::Path::new(&fname);
-    let file = OpenOptions::new()
-            .read(true)
-            .write(true)
-            .create(true)
-            .open(path).unwrap();
-
-    let mut zip = ZipWriter::new_append(file).unwrap();
-
-    let options = FileOptions::default()
-        .compression_method(CompressionMethod::Stored)
-        .unix_permissions(0o755)
-        .with_deprecated_encryption(PASS);
-
-    zip.start_file(now.format("%Y-%m-%d-%H:%M:%S.png").to_string(), options)?;
-
-    let mut buffer = Vec::new();
-    let mut f = File::open("temp.png")?;
-    f.read_to_end(&mut buffer)?;
-    zip.write_all(&*buffer)?;
-    buffer.clear();
-
-    zip.finish()?;
-
-    Ok(())
 }

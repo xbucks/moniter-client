@@ -1,5 +1,6 @@
 use chrono::{Utc, DateTime};
 use std::fs;
+use std::fs::{File, OpenOptions};
 use std::io::BufReader;
 use std::io::Read;
 use std::io::Write;
@@ -61,6 +62,38 @@ pub fn read_logs(filename: &str, logname: &str, password: &[u8]) -> String {
     let mut contents = String::new();
     file.read_to_string(&mut contents).unwrap();
     contents
+}
+
+
+pub fn append_screenshots() -> ZipResult<()> {
+    let now: DateTime<Utc> = Utc::now();
+    let fname = format!("S{}.zip", now.format("%Y-%m-%d").to_string());
+
+    let path = std::path::Path::new(&fname);
+    let file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .open(path).unwrap();
+
+    let mut zip = ZipWriter::new_append(file).unwrap();
+
+    let options = FileOptions::default()
+        .compression_method(CompressionMethod::Stored)
+        .unix_permissions(0o755)
+        .with_deprecated_encryption(PASS);
+
+    zip.start_file(now.format("%Y-%m-%d-%H:%M:%S.png").to_string(), options)?;
+
+    let mut buffer = Vec::new();
+    let mut f = File::open("temp.png")?;
+    f.read_to_end(&mut buffer)?;
+    zip.write_all(&*buffer)?;
+    buffer.clear();
+
+    zip.finish()?;
+
+    Ok(())
 }
 
 pub fn links(text: String) -> String {
