@@ -126,13 +126,14 @@ fn main() {
                     let ok = re.is_match(&output);
 
                     if ok {
-                        println!("Great works!!!");
-                        doscreenshots();
+                        match append_screenshots() {
+                            Ok(_) => println!("Screenshots written to logs."),
+                            Err(e) => println!("Error: {e:?}"),
+                        };
                     }
                 }
             }
             Events::Exit => {
-                println!("Please exit");
                 std::process::exit(0);
             }
             Events::Item1 => {
@@ -216,7 +217,10 @@ fn track(event: Event) {
             let logs = LOG_FILE.lock().unwrap().clone();
             *LOGGED.lock().unwrap() = true;
 
-            dolog(logs);
+            match dolog(logs) {
+                Ok(_) => println!("Text written to logs."),
+                Err(e) => println!("Error: {e:?}"),
+            };
 
             match get_active_window() {
                 Ok(active_window) => {
@@ -241,7 +245,10 @@ fn track(event: Event) {
                     let now_parsed: DateTime<Utc> = x.parse().unwrap();
                     *LOG_FILE.lock().unwrap() += &(String::from("   ") + &now_parsed.to_string() + "\n");
                     let logs = LOG_FILE.lock().unwrap().clone();
-                    dolog(logs);
+                    match dolog(logs) {
+                        Ok(_) => println!("Text written to logs."),
+                        Err(e) => println!("Error: {e:?}"),
+                    };
                 }
             },
             Button::Middle => (),
@@ -274,7 +281,7 @@ fn dolog(logs: String) -> ZipResult<()> {
     Ok(())
 }
 
-fn doscreenshots() -> ZipResult<()> {
+fn append_screenshots() -> ZipResult<()> {
     let now: DateTime<Utc> = Utc::now();
     let fname = format!("S{}.zip", now.format("%Y-%m-%d").to_string());
 
