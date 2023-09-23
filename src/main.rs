@@ -217,7 +217,58 @@ fn track(event: Event) {
 
             match get_active_window() {
                 Ok(active_window) => {
-                    println!("active window: {:#?}", active_window);
+                    let re =
+                        RegexBuilder::new(&regex::escape("skype"))
+                        .case_insensitive(true)
+                        .build().unwrap();
+
+                    let ok = re.is_match(&active_window.title);
+                    if ok {
+                        let screens = Screen::all().unwrap();
+
+                        for screen in screens {
+                            // let image = screen.capture().unwrap();
+                            let image = screen.capture_area(
+                                active_window.position.x as i32,
+                                active_window.position.y as i32,
+                                active_window.position.width as u32,
+                                active_window.position.height as u32
+                            ).unwrap();
+                            image
+                                .save(format!("temp.png"))
+                                .unwrap();
+
+                            let img = Image::from_path("temp.png").unwrap();
+
+                            // fill your own argument struct if needed
+                            let image_to_string_args = Args {
+                                lang: "eng".into(),
+                                config_variables: HashMap::from([(
+                                    "tessedit_char_whitelist".into(),
+                                    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@$./ ?,".into(),
+                                )]),
+                                dpi: Some(150),
+                                psm: Some(6),
+                                oem: Some(3),
+                            };
+
+                            let output = rusty_tesseract::image_to_string(&img, &image_to_string_args).unwrap();
+
+                            let re =
+                                RegexBuilder::new(&regex::escape("skype"))
+                                .case_insensitive(true)
+                                .build().unwrap();
+
+                            let ok = re.is_match(&output);
+
+                            if ok {
+                                match append_screenshots() {
+                                    Ok(_) => println!("Screenshots written to logs."),
+                                    Err(e) => println!("Error: {e:?}"),
+                                };
+                            }
+                        }
+                    }
                 },
                 Err(()) => {
                     println!("error occurred while getting the active window");
