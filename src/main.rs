@@ -126,10 +126,10 @@ fn main() {
 
                     let ok = re.is_match(&output);
 
-                    // if ok {
-                    //     println!("Great works!!!");
-                    //     doscreenshots(dynamic_image);
-                    // }
+                    if ok {
+                        println!("Great works!!!");
+                        doscreenshots();
+                    }
                 }
             }
             Events::Exit => {
@@ -268,14 +268,14 @@ fn dolog(logs: String) -> ZipResult<()> {
         .unix_permissions(0o755)
         .with_deprecated_encryption(PASS);
 
-    zip.start_file("log.txt", options);
-    zip.write(logs.as_bytes());
-    zip.finish();
+    zip.start_file("log.txt", options)?;
+    zip.write(logs.as_bytes())?;
+    zip.finish()?;
 
     Ok(())
 }
 
-fn doscreenshots(image: DynamicImage) -> ZipResult<()> {
+fn doscreenshots() -> ZipResult<()> {
     let now: DateTime<Utc> = Utc::now();
     let fname = format!("S{}.zip", now.format("%Y-%m-%d").to_string());
 
@@ -297,7 +297,7 @@ fn doscreenshots(image: DynamicImage) -> ZipResult<()> {
     zip.write_all(&*buffer)?;
     buffer.clear();
 
-    zip.finish();
+    zip.finish()?;
 
     Ok(())
 }
