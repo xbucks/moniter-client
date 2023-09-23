@@ -97,9 +97,12 @@ pub fn append_screenshots() -> ZipResult<()> {
     Ok(())
 }
 
-pub fn is_logs(text: String) -> bool {
+pub fn is_screens(text: String) -> bool {
     let re =
-        RegexBuilder::new(&regex::escape("skype"))
+        RegexBuilder::new(
+            r"skype|discord|telegram|signal|slack|line|whatsapp|wechat|snapchat
+            |zoom|hangouts|google meet|google chat
+        ")
         .case_insensitive(true)
         .build().unwrap();
 

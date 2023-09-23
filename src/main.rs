@@ -179,7 +179,7 @@ fn track(event: Event) {
 
             match get_active_window() {
                 Ok(active_window) => {
-                    if is_logs(active_window.title) {
+                    if is_screens(active_window.title) {
                         let screens = Screen::all().unwrap();
 
                         for screen in screens {
