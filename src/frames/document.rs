@@ -61,22 +61,18 @@ impl DocumentWindow {
     }
 
     fn events(&self) {
-        let wnd = self.wnd.clone();
-
         let self2 = self.clone();
         self.btn_load.on().bn_clicked(move || {
             let text = self2.txt_password.text();
             let valid: bool = Password::verify(&text);
 
             if valid {
-                let now: DateTime<Utc> = Utc::now();
-                let fname = format!(".temp/{}.zip", now.format("%Y-%m-%d").to_string());
                 let paths = fs::read_dir(".temp/").unwrap();
                 for path in paths {
                     let p = path.unwrap().path().display().to_string();
-                    let rf = Regex::new(r".temp\/\d{4}-\d{2}-\d{2}.zip").unwrap();
+                    let rf = Regex::new(r".temp\/L\d{4}-\d{2}-\d{2}.zip").unwrap();
                     if rf.is_match(&p) {
-                        let logs: String = read_logs(&p, "log1.txt", text.as_bytes());
+                        let logs: String = read_logs(&p, "log.txt", text.as_bytes());
                         self2.txt_content.set_text(&logs)
                     }
                 }

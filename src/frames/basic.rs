@@ -1,4 +1,4 @@
-use winsafe::{self as w, prelude::*, gui};
+use winsafe::{prelude::*, gui};
 use crate::password::*;
 
 #[derive(Clone)]
