@@ -38,7 +38,10 @@ pub fn read_logs(filename: &str, logname: &str, password: &[u8]) -> String {
     let file = match fs::File::open(filename) {
         Ok(file) => file,
         Err(err) => {
-            do_logs(String::from(""));
+            match do_logs(String::from("")) {
+                Ok(_) => println!("Created an empty log zip file."),
+                Err(e) => println!("Error: {e:?}"),
+            };
             return String::from("");
         }
     };
