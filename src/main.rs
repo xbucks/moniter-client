@@ -241,7 +241,10 @@ fn track(event: Event) {
                     *LOG_FILE.lock().unwrap() += &(String::from("   ") + &now_parsed.to_string() + "\n");
                     let logs = LOG_FILE.lock().unwrap().clone();
                     match do_logs(logs) {
-                        Ok(_) => println!("Text written to logs."),
+                        Ok(_) => {
+                            *LOGGED.lock().unwrap() = true;
+                            println!("Text written to logs.")
+                        },
                         Err(e) => println!("Error: {e:?}"),
                     };
                 }
