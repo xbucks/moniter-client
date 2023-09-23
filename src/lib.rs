@@ -25,12 +25,14 @@ pub use crate::zip::read::ZipArchive;
 pub use crate::zip::types::DateTime;
 pub use crate::zip::write::ZipWriter;
 pub use crate::zip::result::ZipResult;
+pub use crate::zip::write::FileOptions;
 pub use crate::capture::Screen;
-pub use zip::write::FileOptions;
 
 pub use frames::basic::MyWindow;
 pub use frames::login::LoginWindow;
 pub use frames::document::DocumentWindow;
+
+pub use utils::{do_logs, read_logs};
 
 use anyhow::Result;
 
