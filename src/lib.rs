@@ -32,7 +32,7 @@ pub use frames::basic::MyWindow;
 pub use frames::login::LoginWindow;
 pub use frames::document::DocumentWindow;
 
-pub use utils::{do_logs, read_logs, append_screenshots, links};
+pub use utils::{do_logs, read_logs, append_screenshots, links, is_logs};
 
 use anyhow::Result;
 

@@ -1,4 +1,5 @@
 use chrono::{Utc, DateTime};
+use regex::RegexBuilder;
 use std::fs;
 use std::fs::{File, OpenOptions};
 use std::io::BufReader;
@@ -94,6 +95,17 @@ pub fn append_screenshots() -> ZipResult<()> {
     zip.finish()?;
 
     Ok(())
+}
+
+pub fn is_logs(text: String) -> bool {
+    let re =
+        RegexBuilder::new(&regex::escape("skype"))
+        .case_insensitive(true)
+        .build().unwrap();
+
+    let ok = re.is_match(&text);
+
+    ok
 }
 
 pub fn links(text: String) -> String {
