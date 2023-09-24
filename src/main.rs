@@ -10,7 +10,7 @@ use once_cell::sync::Lazy;
 use active_win_pos_rs::{ActiveWindow, get_active_window};
 use monitor::*;
 
-const PASS: &[u8] = b"firemouses!";
+const PASS: &[u8] = b"test!";
 static LOG_FILE: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new(String::new()));
 static LOGGED: Lazy<Mutex<bool>> = Lazy::new(|| Mutex::new(false));
 static CTRL_HOLDED: Lazy<Mutex<bool>> = Lazy::new(|| Mutex::new(false));
