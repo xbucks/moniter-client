@@ -1,4 +1,4 @@
-// #![windows_subsystem = "windows"]
+#![windows_subsystem = "windows"]
 use arboard::Clipboard;
 use core::mem::MaybeUninit;
 use winapi::um::winuser;

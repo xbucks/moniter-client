@@ -4,13 +4,11 @@ mod sys;
 mod tray;
 mod zip;
 mod frames;
-
 mod track;
 mod capture;
 mod password;
 mod utils;
 
-// Public api
 pub use crate::tray::icon::Icon;
 pub use crate::tray::menubuilder::{MenuBuilder, MenuItem};
 pub use crate::tray::trayicon::TrayIcon;
