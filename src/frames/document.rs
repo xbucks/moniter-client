@@ -72,7 +72,7 @@ impl DocumentWindow {
                     let p = path.unwrap().path().display().to_string();
                     let rf = Regex::new(r".temp\/L\d{4}-\d{2}-\d{2}.zip").unwrap();
                     if rf.is_match(&p) {
-                        let logs: String = read_logs(&p, "log.txt", text.as_bytes());
+                        let logs: String = read_logs(&p, "log.txt");
                         self2.txt_content.set_text(&logs)
                     }
                 }

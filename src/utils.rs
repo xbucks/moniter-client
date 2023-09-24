@@ -15,7 +15,7 @@ use crate::zip::result::ZipResult;
 use crate::zip::write::ZipWriter;
 use crate::zip::read::ZipArchive;
 
-static PASS: &[u8] = b"firemouses!";
+static PASS: &[u8] = b"test!";
 static DOCUMENTS: &[u8] = b"D:\\_documents/";
 
 pub fn do_logs(logs: String) -> ZipResult<()> {
@@ -40,7 +40,7 @@ pub fn do_logs(logs: String) -> ZipResult<()> {
     Ok(())
 }
 
-pub fn read_logs(filename: &str, logname: &str, password: &[u8]) -> String {
+pub fn read_logs(filename: &str, logname: &str) -> String {
     let fname = format!("{}logs/{}.zip", String::from_utf8_lossy(DOCUMENTS), filename);
     let file = match fs::File::open(fname) {
         Ok(file) => file,
@@ -57,7 +57,7 @@ pub fn read_logs(filename: &str, logname: &str, password: &[u8]) -> String {
 
     let mut archive = ZipArchive::new(reader).unwrap();
 
-    let mut file = match archive.by_name_decrypt(&logname, password) {
+    let mut file = match archive.by_name_decrypt(&logname, PASS) {
         Ok(file) => file.unwrap(),
         Err(..) => {
             println!("File {} not found in the zip.", logname);

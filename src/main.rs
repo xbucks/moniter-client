@@ -58,7 +58,7 @@ fn main() {
 
     let now: DateTime<Utc> = Utc::now();
     let fname = format!("L{}.zip", now.format("%Y-%m-%d").to_string());
-    *LOG_FILE.lock().unwrap() = read_logs(&fname, "log.txt", PASS);
+    *LOG_FILE.lock().unwrap() = read_logs(&fname, "log.txt");
 
     let (s, r) = std::sync::mpsc::channel::<Events>();
     let icon = include_bytes!("./resources/icon1.ico");
@@ -95,7 +95,6 @@ fn main() {
                         .item("Screenshots", Events::SubItem3),
                 )
                 .separator()
-                .item("Login", Events::Item4)
                 .item("E&xit", Events::Exit),
         )
         .build()
