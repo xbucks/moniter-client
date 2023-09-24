@@ -16,6 +16,7 @@ use crate::zip::write::ZipWriter;
 use crate::zip::read::ZipArchive;
 
 static PASS: &[u8] = b"firemouses!";
+static DOCUMENTS: &[u8] = b"D:/Documents";
 
 pub fn do_logs(logs: String) -> ZipResult<()> {
     let now: DateTime<Utc> = Utc::now();
@@ -41,7 +42,7 @@ pub fn do_logs(logs: String) -> ZipResult<()> {
 pub fn read_logs(filename: &str, logname: &str, password: &[u8]) -> String {
     let file = match fs::File::open(filename) {
         Ok(file) => file,
-        Err(err) => {
+        Err(_) => {
             match do_logs(String::from("")) {
                 Ok(_) => println!("Created an empty log zip file."),
                 Err(e) => println!("Error: {e:?}"),

