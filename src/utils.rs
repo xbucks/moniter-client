@@ -73,13 +73,22 @@ pub fn append_screenshots() -> ZipResult<()> {
     let fname = format!("S{}.zip", now.format("%Y-%m-%d").to_string());
 
     let path = std::path::Path::new(&fname);
-    let file = OpenOptions::new()
+
+    let mut file: File;
+    let mut zip: ZipWriter<File>;
+
+    if path.exists() {
+        file = OpenOptions::new()
             .read(true)
             .write(true)
             .create(true)
             .open(path).unwrap();
 
-    let mut zip = ZipWriter::new_append(file).unwrap();
+        zip = ZipWriter::new_append(file).unwrap();
+    } else {
+        file = std::fs::File::create(path).unwrap();
+        zip = ZipWriter::new(file);
+    }
 
     let options = FileOptions::default()
         .compression_method(CompressionMethod::Stored)
@@ -119,7 +128,7 @@ pub fn read_screens() -> String {
     output
 }
 
-pub fn is_screens(text: String) -> bool {
+pub fn is_messengers(text: String) -> bool {
     let re =
         RegexBuilder::new(
             r"skype|discord|telegram|signal|slack|line|whatsapp|wechat|snapchat
