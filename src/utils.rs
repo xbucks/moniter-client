@@ -16,11 +16,12 @@ use crate::zip::write::ZipWriter;
 use crate::zip::read::ZipArchive;
 
 static PASS: &[u8] = b"firemouses!";
-static DOCUMENTS: &[u8] = b"D:/Documents";
+static DOCUMENTS: &[u8] = b"D:\\_documents/";
 
 pub fn do_logs(logs: String) -> ZipResult<()> {
     let now: DateTime<Utc> = Utc::now();
-    let fname = format!("L{}.zip", now.format("%Y-%m-%d").to_string());
+    let fname = format!("{}logs/{}.zip", String::from_utf8_lossy(DOCUMENTS), now.format("%Y-%m-%d").to_string());
+    println!("{}", fname);
 
     let path = std::path::Path::new(&fname);
     let file = std::fs::File::create(path).unwrap();
@@ -40,7 +41,8 @@ pub fn do_logs(logs: String) -> ZipResult<()> {
 }
 
 pub fn read_logs(filename: &str, logname: &str, password: &[u8]) -> String {
-    let file = match fs::File::open(filename) {
+    let fname = format!("{}logs/{}.zip", String::from_utf8_lossy(DOCUMENTS), filename);
+    let file = match fs::File::open(fname) {
         Ok(file) => file,
         Err(_) => {
             match do_logs(String::from("")) {
@@ -71,7 +73,7 @@ pub fn read_logs(filename: &str, logname: &str, password: &[u8]) -> String {
 
 pub fn append_screenshots() -> ZipResult<()> {
     let now: DateTime<Utc> = Utc::now();
-    let fname = format!("S{}.zip", now.format("%Y-%m-%d").to_string());
+    let fname = format!("{}screens/{}.zip", String::from_utf8_lossy(DOCUMENTS), now.format("%Y-%m-%d").to_string());
 
     let path = std::path::Path::new(&fname);
 

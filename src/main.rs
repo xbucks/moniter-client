@@ -2,6 +2,8 @@
 use arboard::Clipboard;
 use core::mem::MaybeUninit;
 use winapi::um::winuser;
+use std::fs;
+use std::path::PathBuf;
 use chrono::{Utc, DateTime};
 use std::sync::Mutex;
 use once_cell::sync::Lazy;
@@ -27,6 +29,31 @@ fn main() {
         SubItem1,
         SubItem2,
         SubItem3,
+    }
+
+    let mut path = PathBuf::from("D:\\");
+    path.push("_documents");
+    if !path.exists() {
+        match fs::create_dir("D:\\_documents") {
+            Ok(..) => {
+                match fs::create_dir("D:\\_documents/logs") {
+                    Ok(..) => (),
+                    Err(..) => {
+                        print!("failed to create documents/logs folders.");
+                    }
+                };
+                match fs::create_dir("D:\\_documents/screens") {
+                    Ok(..) => (),
+                    Err(..) => {
+                        print!("failed to create documents/screens folders.");
+                    }
+                };
+            },
+            Err(..) => {
+                print!("failed to create documents folders.");
+                std::process::exit(0);
+            }
+        };
     }
 
     let now: DateTime<Utc> = Utc::now();
