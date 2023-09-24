@@ -19,15 +19,9 @@ fn main() {
     enum Events {
         ClickTrayIcon,
         DoubleClickTrayIcon,
-        Exit,
         Item1,
         Item2,
         Item3,
-        Item4,
-        CheckItem1,
-        SubItem1,
-        SubItem2,
-        SubItem3,
     }
 
     let mut path = PathBuf::from("D:\\");
@@ -61,10 +55,6 @@ fn main() {
 
     let (s, r) = std::sync::mpsc::channel::<Events>();
     let icon = include_bytes!("./resources/icon1.ico");
-    let icon2 = include_bytes!("./resources/icon2.ico");
-
-    let second_icon = Icon::from_buffer(icon2, None, None).unwrap();
-    let first_icon = Icon::from_buffer(icon, None, None).unwrap();
 
     // Needlessly complicated tray icon with all the whistles and bells
     let mut tray_icon = TrayIconBuilder::new()
@@ -75,26 +65,9 @@ fn main() {
         .on_double_click(Events::DoubleClickTrayIcon)
         .menu(
             MenuBuilder::new()
-                .item("Replace Menu", Events::Item3)
-                .item("Change Icon Green", Events::Item2)
-                .item("Change Icon Red", Events::Item1)
-                .separator()
-                .with(MenuItem::Checkable {
-                    name: "Logging".into(),
-                    is_checked: true,
-                    disabled: true,
-                    id: Events::CheckItem1,
-                    icon: None,
-                })
-                .submenu(
-                    "Logs",
-                    MenuBuilder::new()
-                        .item("Documents", Events::SubItem1)
-                        .item("Emails", Events::SubItem2)
-                        .item("Screenshots", Events::SubItem3),
-                )
-                .separator()
-                .item("E&xit", Events::Exit),
+                .item("Activity", Events::Item1)
+                .item("Logs", Events::Item2)
+                .item("Screens", Events::Item3)
         )
         .build()
         .unwrap();
@@ -108,50 +81,27 @@ fn main() {
         r.iter().for_each(|m| match m {
             Events::DoubleClickTrayIcon => {}
             Events::ClickTrayIcon => {}
-            Events::Exit => {
-                std::process::exit(0);
-            }
             Events::Item1 => {
-                tray_icon.set_icon(&second_icon).unwrap();
-            }
-            Events::Item2 => {
-                tray_icon.set_icon(&first_icon).unwrap();
-            }
-            Events::Item3 => {
-                tray_icon
-                    .set_menu(
-                        &MenuBuilder::new()
-                            .item("Replace Icon", Events::Item1)
-                            .item("Exit", Events::Exit),
-                    )
-                    .unwrap();
-            }
-            Events::Item4 => {
                 let my = LoginWindow::new();
                 if let Err(e) = my.wnd.run_main(None) {
                     eprintln!("{}", e);
                 }
             }
-            Events::SubItem1 => {
+            Events::Item2 => {
                 let my = DocumentWindow::new();
                 if let Err(e) = my.wnd.run_main(None) {
                     eprintln!("{}", e);
                 }
             }
-            Events::SubItem2 => {
+            Events::Item3 => {
                 let my = MyWindow::new();
                 if let Err(e) = my.wnd.run_main(None) {
                     eprintln!("{}", e);
                 }
             }
-            e => {
-                println!("{:?}", e);
-            }
         })
     });
 
-    // Your applications message loop. Because all applications require an
-    // application loop, you are best served using an `winit` crate.
     loop {
         unsafe {
             let mut msg = MaybeUninit::uninit();
