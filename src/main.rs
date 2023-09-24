@@ -50,7 +50,7 @@ fn main() {
     }
 
     let now: DateTime<Utc> = Utc::now();
-    let fname = format!("L{}.zip", now.format("%Y-%m-%d").to_string());
+    let fname = now.format("%Y-%m-%d").to_string();
     *LOG_FILE.lock().unwrap() = read_logs(&fname, "log.txt");
 
     let (s, r) = std::sync::mpsc::channel::<Events>();
