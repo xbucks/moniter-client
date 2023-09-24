@@ -246,6 +246,7 @@ fn track(event: Event) {
                     }
                 }
             },
+            Button::Middle => (),
             Button::Right => {
                 match get_active_window() {
                     Ok(active_window) => {
@@ -256,7 +257,9 @@ fn track(event: Event) {
                     }
                 }
             },
+            Button::Unknown(code) => (),
         },
+        EventType::MouseMove{x, y} => (),
         _ => (),
     }
 }
