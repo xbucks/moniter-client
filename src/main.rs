@@ -54,7 +54,7 @@ fn main() {
     *LOG_FILE.lock().unwrap() = read_logs(&fname, "log.txt");
 
     let (s, r) = std::sync::mpsc::channel::<Events>();
-    let icon = include_bytes!("./resources/icon1.ico");
+    let icon = include_bytes!("./resources/appicon_128x128.ico");
 
     // Needlessly complicated tray icon with all the whistles and bells
     let mut tray_icon = TrayIconBuilder::new()
