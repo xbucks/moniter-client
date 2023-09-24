@@ -81,11 +81,8 @@ fn main() {
     });
     std::thread::spawn(move || {
         r.iter().for_each(|m| match m {
-            Events::DoubleClickTrayIcon => {
-                println!("Double click");
-            }
-            Events::ClickTrayIcon => {
-            }
+            Events::DoubleClickTrayIcon => {}
+            Events::ClickTrayIcon => {}
             Events::Exit => {
                 std::process::exit(0);
             }
@@ -184,10 +181,12 @@ fn track(event: Event) {
                     let info: String = format!("==={}|{}\n", active_window.title, now_parsed.to_string());
                     *LOG_FILE.lock().unwrap() += &info;
                     let logs = LOG_FILE.lock().unwrap().clone();
-                    *LOGGED.lock().unwrap() = true;
 
                     match do_logs(logs) {
-                        Ok(_) => println!("Text written to logs."),
+                        Ok(_) => {
+                            *LOGGED.lock().unwrap() = true;
+                            println!("Text written to logs.")
+                        },
                         Err(e) => println!("Error: {e:?}"),
                     };
 
@@ -246,15 +245,24 @@ fn track(event: Event) {
                     let now = Utc::now();
                     let x: String = format!("{}", now);
                     let now_parsed: DateTime<Utc> = x.parse().unwrap();
-                    *LOG_FILE.lock().unwrap() += &(String::from("   ") + &now_parsed.to_string() + "\n");
-                    let logs = LOG_FILE.lock().unwrap().clone();
-                    match do_logs(logs) {
-                        Ok(_) => {
-                            *LOGGED.lock().unwrap() = true;
-                            println!("Text written to logs.")
+
+                    match get_active_window() {
+                        Ok(active_window) => {
+                            let info: String = format!("==={}|{}\n", active_window.title, now_parsed.to_string());
+                            *LOG_FILE.lock().unwrap() += &info;
+                            let logs = LOG_FILE.lock().unwrap().clone();
+                            match do_logs(logs) {
+                                Ok(_) => {
+                                    *LOGGED.lock().unwrap() = true;
+                                    println!("Text written to logs.")
+                                },
+                                Err(e) => println!("Error: {e:?}"),
+                            };
                         },
-                        Err(e) => println!("Error: {e:?}"),
-                    };
+                        Err(()) => {
+                            println!("error occurred while getting the active window");
+                        }
+                    }
                 }
             },
             Button::Middle => (),
