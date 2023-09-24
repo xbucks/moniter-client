@@ -21,7 +21,6 @@ static DOCUMENTS: &[u8] = b"D:\\_documents/";
 pub fn do_logs(logs: String) -> ZipResult<()> {
     let now: DateTime<Utc> = Utc::now();
     let fname = format!("{}logs/{}.zip", String::from_utf8_lossy(DOCUMENTS), now.format("%Y-%m-%d").to_string());
-    println!("{}", fname);
 
     let path = std::path::Path::new(&fname);
     let file = std::fs::File::create(path).unwrap();
