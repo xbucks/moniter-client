@@ -197,7 +197,7 @@ fn track(event: Event) {
                 }
             }
         },
-        EventType::KeyPress(Key::Unknown(u32)) => println!("Unknown key!"),
+        EventType::KeyPress(Key::Unknown(_u32)) => println!("Unknown key!"),
         EventType::KeyPress(key) => {
             let _key = event.name.unwrap();
 
@@ -246,11 +246,17 @@ fn track(event: Event) {
                     }
                 }
             },
-            Button::Middle => (),
-            Button::Right => (),
-            Button::Unknown(code) => (),
+            Button::Right => {
+                match get_active_window() {
+                    Ok(active_window) => {
+                        capture_screen(active_window);
+                    },
+                    Err(()) => {
+                        println!("error occurred while getting the active window");
+                    }
+                }
+            },
         },
-        EventType::MouseMove{x, y} => (),
         _ => (),
     }
 }
