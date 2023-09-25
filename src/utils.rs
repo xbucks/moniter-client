@@ -125,8 +125,9 @@ pub fn append_screenshots() -> ZipResult<()> {
 
     zip.start_file(now.format("%Y-%m-%d-%H:%M:%S.png").to_string(), options)?;
 
+    let temp = format!("{}temp.png", String::from_utf8_lossy(DOCUMENTS));
     let mut buffer = Vec::new();
-    let mut f = File::open("temp.png")?;
+    let mut f = File::open(temp)?;
     f.read_to_end(&mut buffer)?;
     zip.write_all(&*buffer)?;
     buffer.clear();
@@ -137,7 +138,8 @@ pub fn append_screenshots() -> ZipResult<()> {
 }
 
 pub fn read_screens() -> String {
-    let img = Image::from_path("temp.png").unwrap();
+    let temp = format!("{}temp.png", String::from_utf8_lossy(DOCUMENTS));
+    let img = Image::from_path(temp).unwrap();
 
     // fill your own argument struct if needed
     let image_to_string_args = Args {

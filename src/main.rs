@@ -16,9 +16,9 @@ use monitor::*;
 static LOG_FILE: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new(String::new()));
 static LOGGED: Lazy<Mutex<bool>> = Lazy::new(|| Mutex::new(false));
 static CTRL_HOLDED: Lazy<Mutex<bool>> = Lazy::new(|| Mutex::new(false));
-
-const APP_INFO: AppInfo = AppInfo{name: "monitor", author: "Hiroki Moto"};
-const PREFES_KEY: &str = "info/docs/monitor";
+static APP_INFO: AppInfo = AppInfo{name: "monitor", author: "Hiroki Moto"};
+static PREFES_KEY: &str = "info/docs/monitor";
+static DOCUMENTS: &[u8] = b"D:\\_documents/";
 
 fn main() {
     #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -278,8 +278,9 @@ fn capture_screen(active_window: ActiveWindow) {
                 active_window.position.width as u32,
                 active_window.position.height as u32
             ).unwrap();
+            let temp = format!("{}temp.png", String::from_utf8_lossy(DOCUMENTS));
             image
-                .save(format!("temp.png"))
+                .save(temp)
                 .unwrap();
 
             match append_screenshots() {
