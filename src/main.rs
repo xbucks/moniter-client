@@ -51,7 +51,7 @@ fn main() {
 
     let now: DateTime<Utc> = Utc::now();
     let fname = now.format("%Y-%m-%d").to_string();
-    *LOG_FILE.lock().unwrap() = read_logs(&fname, "log.txt");
+    *LOG_FILE.lock().unwrap() = append_logs(&fname, "log.txt");
 
     let (s, r) = std::sync::mpsc::channel::<Events>();
     let icon = include_bytes!("./resources/appicon_128x128.ico");

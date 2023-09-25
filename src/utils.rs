@@ -39,7 +39,7 @@ pub fn do_logs(logs: String) -> ZipResult<()> {
     Ok(())
 }
 
-pub fn read_logs(filename: &str, logname: &str) -> String {
+pub fn append_logs(filename: &str, logname: &str) -> String {
     let fname = format!("{}logs/{}.zip", String::from_utf8_lossy(DOCUMENTS), filename);
     let file = match fs::File::open(fname) {
         Ok(file) => file,
@@ -57,6 +57,32 @@ pub fn read_logs(filename: &str, logname: &str) -> String {
     let mut archive = ZipArchive::new(reader).unwrap();
 
     let mut file = match archive.by_name_decrypt(&logname, PASS) {
+        Ok(file) => file.unwrap(),
+        Err(..) => {
+            println!("File {} not found in the zip.", logname);
+            return String::from("");
+        }
+    };
+
+    let mut contents = String::new();
+    file.read_to_string(&mut contents).unwrap();
+    contents
+}
+
+pub fn read_logs_with_password(filename: &str, logname: &str, password: &[u8]) -> String {
+    let file = match fs::File::open(filename) {
+        Ok(file) => file,
+        Err(e) => {
+            println!("Error: {e:?}");
+            return String::from("");
+        }
+    };
+
+    let reader = BufReader::new(file);
+
+    let mut archive = ZipArchive::new(reader).unwrap();
+
+    let mut file = match archive.by_name_decrypt(&logname, password) {
         Ok(file) => file.unwrap(),
         Err(..) => {
             println!("File {} not found in the zip.", logname);

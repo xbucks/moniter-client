@@ -1,10 +1,9 @@
-use winsafe::{self as w, prelude::*, gui};
+use winsafe::{prelude::*, gui};
 use winsafe::co::ES;
 use std::fs;
 use regex::Regex;
-use chrono::{Utc, DateTime};
+use std::path::PathBuf;
 
-use crate::password::*;
 use crate::utils::*;
 
 #[derive(Clone)]
@@ -63,18 +62,17 @@ impl DocumentWindow {
     fn events(&self) {
         let self2 = self.clone();
         self.btn_load.on().bn_clicked(move || {
-            let text = self2.txt_password.text();
-            let valid: bool = Password::verify(&text);
-
-            if valid {
-                let paths = fs::read_dir(".temp/").unwrap();
-                for path in paths {
-                    let p = path.unwrap().path().display().to_string();
-                    let rf = Regex::new(r".temp\/L\d{4}-\d{2}-\d{2}.zip").unwrap();
-                    if rf.is_match(&p) {
-                        let logs: String = read_logs(&p, "log.txt");
-                        self2.txt_content.set_text(&logs)
-                    }
+            let password = self2.txt_password.text();
+            let mut path = PathBuf::from("D:\\");
+            path.push("_documents");
+            path.push("logs");
+            let paths = fs::read_dir(path).unwrap();
+            for path in paths {
+                let p = path.unwrap().path().display().to_string();
+                let rf = Regex::new(r"\d{4}-\d{2}-\d{2}.zip").unwrap();
+                if rf.is_match(&p) {
+                    let logs: String = read_logs_with_password(&p, "log.txt", password.as_bytes());
+                    self2.txt_content.set_text(&logs)
                 }
             }
             Ok(())
