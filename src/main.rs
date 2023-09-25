@@ -8,15 +8,25 @@ use chrono::{Utc, DateTime};
 use std::sync::Mutex;
 use once_cell::sync::Lazy;
 use active_win_pos_rs::{ActiveWindow, get_active_window};
+use std::thread::sleep;
+use std::time::{Duration, Instant};
+use preferences::{AppInfo, PreferencesMap, Preferences};
 use monitor::*;
 
 static LOG_FILE: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new(String::new()));
 static LOGGED: Lazy<Mutex<bool>> = Lazy::new(|| Mutex::new(false));
 static CTRL_HOLDED: Lazy<Mutex<bool>> = Lazy::new(|| Mutex::new(false));
 
+const APP_INFO: AppInfo = AppInfo{name: "monitor", author: "Hiroki Moto"};
+const PREFES_KEY: &str = "info/docs/monitor";
+
 fn main() {
     #[derive(Copy, Clone, Eq, PartialEq, Debug)]
     enum Events { ClickTrayIcon, DoubleClickTrayIcon }
+
+    let interval = Duration::from_secs(1);
+    let mut next_time = Instant::now() + interval;
+    log_machine_status("end");
 
     let mut path = PathBuf::from("D:\\");
     path.push("_documents");
@@ -43,23 +53,7 @@ fn main() {
         };
     }
 
-    let now: DateTime<Utc> = Utc::now();
-    let fname = now.format("%Y-%m-%d").to_string();
-    *LOG_FILE.lock().unwrap() = read_logs(&fname, "log.txt");
-
-    let now = Utc::now();
-    let x: String = format!("{}", now);
-    let now_parsed: DateTime<Utc> = x.parse().unwrap();
-    let info: String = format!(">>>>>>>>>>>>>>>>>{}>>>>>>>>>>>>>>>>>\n", now_parsed.to_string());
-    *LOG_FILE.lock().unwrap() += &info;
-    let logs = LOG_FILE.lock().unwrap().clone();
-    match do_logs(logs) {
-        Ok(_) => {
-            *LOGGED.lock().unwrap() = true;
-            println!("Monitor has been started and recorded the start time.")
-        },
-        Err(e) => println!("Error: {e:?}"),
-    };
+    log_machine_status("start");
 
     let (s, r) = std::sync::mpsc::channel::<Events>();
     let icon = include_bytes!("./resources/appicon_128x128.ico");
@@ -84,6 +78,18 @@ fn main() {
             Events::DoubleClickTrayIcon => {}
             Events::ClickTrayIcon => {}
         })
+    });
+    std::thread::spawn(move || {
+        loop {
+            let now = Utc::now();
+            let x: String = format!("{}", now);
+            let mut faves: PreferencesMap<String> = PreferencesMap::new();
+            faves.insert("boot".into(), x.into());
+            let save_result = faves.save(&APP_INFO, PREFES_KEY);
+
+            sleep(next_time - Instant::now());
+            next_time += interval;
+        }
     });
 
     loop {
@@ -265,4 +271,41 @@ fn capture_screen(active_window: ActiveWindow) {
             };
         }
     }
+}
+
+fn log_machine_status(status: &str) {
+    let now: DateTime<Utc> = Utc::now();
+    let fname = now.format("%Y-%m-%d").to_string();
+    *LOG_FILE.lock().unwrap() = read_logs(&fname, "log.txt");
+
+    match status {
+        "start" => {
+            let now = Utc::now();
+            let x: String = format!("{}", now);
+            let now_parsed: DateTime<Utc> = x.parse().unwrap();
+            let info: String = format!(">>>>>>>>>>>>>>>>>{}>>>>>>>>>>>>>>>>>\n", now_parsed.to_string());
+            *LOG_FILE.lock().unwrap() += &info;
+        },
+        "end" => {
+            let load_result = PreferencesMap::<String>::load(&APP_INFO, PREFES_KEY);
+            match load_result {
+                Ok(prefs) => {
+                    println!("{:?}", prefs.get("boot".into()).unwrap());
+                    let info: String = format!("<<<<<<<<<<<<<<<<<{}<<<<<<<<<<<<<<<<<\n", prefs.get("boot".into()).unwrap());
+                    *LOG_FILE.lock().unwrap() += &info;
+                },
+                Err(..) => {}
+            };
+        },
+        _ => {}
+    }
+
+    let logs = LOG_FILE.lock().unwrap().clone();
+    match do_logs(logs) {
+        Ok(_) => {
+            *LOGGED.lock().unwrap() = true;
+            println!("Monitor has recorded machine {} status.", status);
+        },
+        Err(e) => println!("Error: {e:?}"),
+    };
 }

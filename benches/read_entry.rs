@@ -1,6 +1,6 @@
 use bencher::{benchmark_group, benchmark_main};
 
-use std::io::{Cursor, Read, Write};
+use std::io::{Cursor};
 
 use bencher::Bencher;
 use getrandom::getrandom;
