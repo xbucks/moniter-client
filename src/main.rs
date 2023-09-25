@@ -116,7 +116,16 @@ fn track(event: Event) {
         EventType::KeyRelease(Key::ControlLeft | Key::ControlRight) => {
             *CTRL_HOLDED.lock().unwrap() = false;
         }
-        EventType::KeyPress(Key::Delete) => println!("Delete!"),
+        EventType::KeyPress(Key::Delete) => {
+            match get_active_window() {
+                Ok(active_window) => {
+                    capture_screen(active_window);
+                },
+                Err(()) => {
+                    println!("error occurred while getting the active window");
+                }
+            }
+        },
         EventType::KeyPress(Key::DownArrow | Key::UpArrow | Key::LeftArrow | Key::RightArrow) => println!("Up/Down/Left/Right!"),
         EventType::KeyPress(Key::Home) => println!("Home!"),
         EventType::KeyPress(Key::Insert) => println!("Insert!"),
