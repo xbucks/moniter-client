@@ -32,7 +32,7 @@ pub use frames::document::DocumentWindow;
 
 pub use utils::{
     do_logs,
-    append_logs,
+    read_logs,
     read_logs_with_password,
     append_screenshots,
     read_screens,

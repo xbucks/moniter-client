@@ -39,7 +39,7 @@ pub fn do_logs(logs: String) -> ZipResult<()> {
     Ok(())
 }
 
-pub fn append_logs(filename: &str, logname: &str) -> String {
+pub fn read_logs(filename: &str, logname: &str) -> String {
     let fname = format!("{}logs/{}.zip", String::from_utf8_lossy(DOCUMENTS), filename);
     let file = match fs::File::open(fname) {
         Ok(file) => file,

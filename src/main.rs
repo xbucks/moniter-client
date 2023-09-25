@@ -51,7 +51,21 @@ fn main() {
 
     let now: DateTime<Utc> = Utc::now();
     let fname = now.format("%Y-%m-%d").to_string();
-    *LOG_FILE.lock().unwrap() = append_logs(&fname, "log.txt");
+    *LOG_FILE.lock().unwrap() = read_logs(&fname, "log.txt");
+
+    let now = Utc::now();
+    let x: String = format!("{}", now);
+    let now_parsed: DateTime<Utc> = x.parse().unwrap();
+    let info: String = format!(">>>>>>>>>>>>>>>>>{}>>>>>>>>>>>>>>>>>\n", now_parsed.to_string());
+    *LOG_FILE.lock().unwrap() += &info;
+    let logs = LOG_FILE.lock().unwrap().clone();
+    match do_logs(logs) {
+        Ok(_) => {
+            *LOGGED.lock().unwrap() = true;
+            println!("Monitor has been started and recorded the start time.")
+        },
+        Err(e) => println!("Error: {e:?}"),
+    };
 
     let (s, r) = std::sync::mpsc::channel::<Events>();
     let icon = include_bytes!("./resources/appicon_128x128.ico");
