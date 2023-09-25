@@ -158,7 +158,10 @@ pub fn read_screens() -> String {
 
 pub fn is_messengers(text: String) -> bool {
     let re =
-        RegexBuilder::new(r"payoneer|paypal|exodus|metamask")
+        RegexBuilder::new(
+            r"skype|discord|telegram|signal|slack|line|whatsapp|wechat|snapchat
+            |zoom|hangouts|google meet|google chat
+        ")
         .case_insensitive(true)
         .build().unwrap();
 
@@ -169,10 +172,7 @@ pub fn is_messengers(text: String) -> bool {
 
 pub fn is_wallets(text: String) -> bool {
     let re =
-        RegexBuilder::new(
-            r"skype|discord|telegram|signal|slack|line|whatsapp|wechat|snapchat
-            |zoom|hangouts|google meet|google chat
-        ")
+        RegexBuilder::new(r"payoneer|paypal|exodus|metamask")
         .case_insensitive(true)
         .build().unwrap();
 

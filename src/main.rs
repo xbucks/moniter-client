@@ -24,10 +24,6 @@ fn main() {
     #[derive(Copy, Clone, Eq, PartialEq, Debug)]
     enum Events { ClickTrayIcon, DoubleClickTrayIcon }
 
-    let interval = Duration::from_secs(1);
-    let mut next_time = Instant::now() + interval;
-    log_machine_status("end");
-
     let mut path = PathBuf::from("D:\\");
     path.push("_documents");
     if !path.exists() {
@@ -53,6 +49,9 @@ fn main() {
         };
     }
 
+    let interval = Duration::from_secs(1);
+    let mut next_time = Instant::now() + interval;
+    log_machine_status("end");
     log_machine_status("start");
 
     let (s, r) = std::sync::mpsc::channel::<Events>();
