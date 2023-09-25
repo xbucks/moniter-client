@@ -16,13 +16,7 @@ static CTRL_HOLDED: Lazy<Mutex<bool>> = Lazy::new(|| Mutex::new(false));
 
 fn main() {
     #[derive(Copy, Clone, Eq, PartialEq, Debug)]
-    enum Events {
-        ClickTrayIcon,
-        DoubleClickTrayIcon,
-        Item1,
-        Item2,
-        Item3,
-    }
+    enum Events { ClickTrayIcon, DoubleClickTrayIcon }
 
     let mut path = PathBuf::from("D:\\");
     path.push("_documents");
@@ -77,12 +71,6 @@ fn main() {
         .tooltip("Monitor")
         .on_click(Events::ClickTrayIcon)
         .on_double_click(Events::DoubleClickTrayIcon)
-        .menu(
-            MenuBuilder::new()
-                .item("Activity", Events::Item1)
-                .item("Logs", Events::Item2)
-                .item("Screens", Events::Item3)
-        )
         .build()
         .unwrap();
 
@@ -95,24 +83,6 @@ fn main() {
         r.iter().for_each(|m| match m {
             Events::DoubleClickTrayIcon => {}
             Events::ClickTrayIcon => {}
-            Events::Item1 => {
-                let my = LoginWindow::new();
-                if let Err(e) = my.wnd.run_main(None) {
-                    eprintln!("{}", e);
-                }
-            }
-            Events::Item2 => {
-                let my = DocumentWindow::new();
-                if let Err(e) = my.wnd.run_main(None) {
-                    eprintln!("{}", e);
-                }
-            }
-            Events::Item3 => {
-                let my = MyWindow::new();
-                if let Err(e) = my.wnd.run_main(None) {
-                    eprintln!("{}", e);
-                }
-            }
         })
     });
 

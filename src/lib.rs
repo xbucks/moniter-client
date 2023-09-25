@@ -3,10 +3,8 @@
 mod sys;
 mod tray;
 mod zip;
-mod frames;
 mod track;
 mod capture;
-mod password;
 mod utils;
 
 pub use crate::tray::icon::Icon;
@@ -25,10 +23,6 @@ pub use crate::zip::write::ZipWriter;
 pub use crate::zip::result::ZipResult;
 pub use crate::zip::write::FileOptions;
 pub use crate::capture::Screen;
-
-pub use frames::basic::MyWindow;
-pub use frames::login::LoginWindow;
-pub use frames::document::DocumentWindow;
 
 pub use utils::{
     do_logs,
