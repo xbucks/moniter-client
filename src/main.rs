@@ -11,6 +11,7 @@ use active_win_pos_rs::{ActiveWindow, get_active_window};
 use std::thread::sleep;
 use std::time::{Duration, Instant};
 use preferences::{AppInfo, PreferencesMap, Preferences};
+use cmd_lib::*;
 use monitor::*;
 
 static LOG_FILE: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new(String::new()));
@@ -53,6 +54,12 @@ fn main() {
     let mut next_time = Instant::now() + interval;
     log_machine_status("end");
     log_machine_status("start");
+
+    if run_cmd! {
+        oxipng -o 4 D:/_documents/temp.png -s;
+    }.is_err() {
+        println!("failed to optimize")
+    }
 
     let (s, r) = std::sync::mpsc::channel::<Events>();
     let icon = include_bytes!("./resources/appicon_128x128.ico");
