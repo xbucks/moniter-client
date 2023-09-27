@@ -56,10 +56,10 @@ fn main() {
     log_machine_status("start");
 
     let (s, r) = std::sync::mpsc::channel::<Events>();
-    let icon = include_bytes!("./resources/appicon_128x128.ico");
+    let icon = include_bytes!("./resources/appicon_512x512.ico");
 
     // Needlessly complicated tray icon with all the whistles and bells
-    let mut tray_icon = TrayIconBuilder::new()
+    let tray_icon = TrayIconBuilder::new()
         .sender(s)
         .icon_from_buffer(icon)
         .tooltip("Monitor")
