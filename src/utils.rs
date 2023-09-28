@@ -57,7 +57,17 @@ pub fn read_logs(filename: &str, logname: &str) -> String {
     let mut archive = ZipArchive::new(reader).unwrap();
 
     let mut file = match archive.by_name_decrypt(&logname, PASS) {
-        Ok(file) => file.unwrap(),
+        Ok(file) => {
+            if file.is_err() {
+                println!("invalid password");
+                match do_logs(String::from("")) {
+                    Ok(_) => println!("Created an empty log zip file."),
+                    Err(e) => println!("Error: {e:?}"),
+                };
+                return String::from("");
+            }
+            file.unwrap()
+        },
         Err(..) => {
             println!("File {} not found in the zip.", logname);
             return String::from("");
