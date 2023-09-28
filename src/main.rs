@@ -50,8 +50,6 @@ fn main() {
         };
     }
 
-    let interval = Duration::from_secs(1);
-    let mut next_time = Instant::now() + interval;
     log_machine_status("end");
     log_machine_status("start");
 
@@ -59,7 +57,7 @@ fn main() {
     let icon = include_bytes!("./resources/appicon_512x512.ico");
 
     // Needlessly complicated tray icon with all the whistles and bells
-    let tray_icon = TrayIconBuilder::new()
+    let _tray_icon = TrayIconBuilder::new()
         .sender(s)
         .icon_from_buffer(icon)
         .tooltip("Monitor")
@@ -86,9 +84,14 @@ fn main() {
             let mut faves: PreferencesMap<String> = PreferencesMap::new();
             faves.insert("boot".into(), x.into());
             let save_result = faves.save(&APP_INFO, PREFES_KEY);
+            match save_result {
+                Ok(..) => (),
+                Err(err) => {
+                    println!("failed to save preferences: {:?}", err);
+                }
+            }
 
-            sleep(next_time - Instant::now());
-            next_time += interval;
+            sleep(Duration::from_secs(1));
         }
     });
 
